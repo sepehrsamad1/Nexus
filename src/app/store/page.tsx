@@ -104,7 +104,8 @@ export default async function StorefrontPage() {
                       ))}
                     </div>
                     
-                    <div className="mt-auto pt-4 border-t border-zinc-800 relative z-10" onClick={e => e.preventDefault() /* Prevent Link click when adding to cart */}>
+                    {/* Removed the inline onClick handler here that was causing the Server Component error */}
+                    <div className="mt-auto pt-4 border-t border-zinc-800 relative z-10">
                       <AddToCartButton 
                         id={product.id} 
                         name={product.name} 
