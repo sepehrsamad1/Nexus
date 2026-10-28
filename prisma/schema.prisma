@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  String    @id @default(cuid())
+  name                String
+  email               String    @unique
+  image               String?
+  role                String    @default("USER") // 'USER' | 'STREAMER' | 'EXPERT' | 'ADMIN'
+  twitchUrl           String?
+  youtubeUrl          String?
+  bio                 String?
+  createdAt           DateTime  @default(now())
+
+  reviews             Review[]
+  comments            Comment[]
+  votes               Vote[]
+  orders              Order[]
+  recommendedProducts Product[] @relation("StreamerRecommendations")
+}
+
+model Game {
+  id              String    @id @default(cuid())
+  slug            String    @unique
+  title           String
+  description     String
+  coverImage      String
+  bannerImage     String?
+  releaseDate     DateTime
+  developer       String
+  publisher       String
+  platformsJson   String    @default("[]") // JSON string of String[]
+  genresJson      String    @default("[]") // JSON string of String[]
+  expertScore     Float     @default(0)
+  streamerScore   Float     @default(0)
+  userScore       Float     @default(0)
+  digitalPrice    Float     @default(59.99)
+  stockKeysJson   String    @default("[]") // JSON string of String[]
+  createdAt       DateTime  @default(now())
+
+  reviews         Review[]
+  comments        Comment[]
+  relatedProducts Product[] @relation("GameRelatedProducts")
+}
+
+model Review {
+  id             String    @id @default(cuid())
+  gameId         String
+  authorId       String
+  roleAtCreation String    @default("USER") // 'USER' | 'STREAMER' | 'EXPERT' | 'ADMIN'
+  score          Int       // 0-100
+  title          String
+  content        String
+  prosJson       String    @default("[]") // JSON string of String[]
+  consJson       String    @default("[]") // JSON string of String[]
+  videoUrl       String?   // Streamer VOD or YouTube review link
+  upvotes        Int       @default(0)
+  downvotes      Int       @default(0)
+  createdAt      DateTime  @default(now())
+
+  game           Game      @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  author         User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments       Comment[]
+  votes          Vote[]
+}
+
+model Comment {
+  id        String    @id @default(cuid())
+  reviewId  String?
+  gameId    String?
+  authorId  String
+  parentId  String?
+  content   String
+  upvotes   Int       @default(0)
+  downvotes Int       @default(0)
+  isDeleted Boolean   @default(false)
+  createdAt DateTime  @default(now())
+
+  review    Review?   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  game      Game?     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+  votes     Vote[]
+}
+
+model Vote {
+  id        String   @id @default(cuid())
+  userId    String
+  reviewId  String?
+  commentId String?
+  value     Int      // 1 or -1
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  review    Review?  @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, reviewId])
+  @@unique([userId, commentId])
+}
+
+model Product {
+  id                      String      @id @default(cuid())
+  slug                    String      @unique
+  name                    String
+  description             String
+  category                String      // 'GAME_KEY' | 'MOUSE' | 'KEYBOARD' | 'HEADSET' | 'CONTROLLER' | 'MONITOR' | 'CHAIR'
+  brand                   String
+  price                   Float
+  stock                   Int         @default(25)
+  imagesJson              String      @default("[]") // JSON string of String[]
+  specsJson               String      @default("{}") // JSON string of Record<string, string>
+  relatedGameId           String?
+  recommendedByStreamerId String?
+  createdAt               DateTime    @default(now())
+
+  relatedGame             Game?       @relation("GameRelatedProducts", fields: [relatedGameId], references: [id], onDelete: SetNull)
+  recommendedByStreamer   User?       @relation("StreamerRecommendations", fields: [recommendedByStreamerId], references: [id], onDelete: SetNull)
+  orderItems              OrderItem[]
+}
+
+model Order {
+  id                String      @id @default(cuid())
+  userId            String
+  status            String      @default("PAID") // 'PENDING' | 'PAID' | 'FULFILLED'
+  totalAmount       Float
+  stripeSessionId   String?
+  deliveredKeysJson String      @default("[]") // JSON array of { gameTitle, key }
+  createdAt         DateTime    @default(now())
+
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items             OrderItem[]
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  productId String?
+  gameId    String?
+  name      String
+  category  String
+  price     Float
+  quantity  Int      @default(1)
+
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+}
