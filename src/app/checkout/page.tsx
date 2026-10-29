@@ -3,7 +3,6 @@
 import { useCart } from '@/store/useCart';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { fulfillMockOrder } from '@/actions/order';
 import { CreditCard, Package, Key, ArrowRight, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -29,17 +28,20 @@ export default function CheckoutPage() {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items, total })
+        body: JSON.stringify({
+          items: items.map(({ id, type, quantity }) => ({ id, type, quantity })),
+        }),
       });
       const data = await res.json();
 
+      if (!res.ok) {
+        throw new Error(data.error || 'Checkout failed.');
+      }
+
       if (data.simulated) {
-        // 2. Actually fulfill the order via Server Action
-        await fulfillMockOrder(items, total);
-        
         setSuccess(true);
         clearCart();
-        
+
         setTimeout(() => {
           router.push('/profile/orders');
         }, 2000);
