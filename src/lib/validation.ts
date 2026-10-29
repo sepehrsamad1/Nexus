@@ -48,7 +48,7 @@ export const cartItemTypeSchema = z.enum(['DIGITAL_KEY', 'PHYSICAL_GEAR']);
 export const checkoutItemSchema = z.object({
   id: idSchema,
   type: cartItemTypeSchema,
-  quantity: z.coerce.number().int().min(1).max(99),
+  quantity: z.number().int().min(1).max(99),
 }).strict();
 
 export const checkoutPayloadSchema = z.object({
