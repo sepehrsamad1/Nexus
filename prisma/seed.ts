@@ -63,11 +63,11 @@ async function main() {
   await prisma.creatorFollow.createMany({
     data: [
       { followerId: user1.id, followingId: streamer1.id },
-      { followerId: regularUsers[0].id, followingId: streamer1.id },
       { followerId: regularUsers[1].id, followingId: streamer1.id },
+      { followerId: regularUsers[2].id, followingId: streamer1.id },
       { followerId: user1.id, followingId: streamer2.id },
-      { followerId: regularUsers[0].id, followingId: streamer2.id },
-      { followerId: regularUsers[2].id, followingId: streamer2.id },
+      { followerId: regularUsers[1].id, followingId: streamer2.id },
+      { followerId: regularUsers[3].id, followingId: streamer2.id },
       { followerId: regularUsers[1].id, followingId: streamer3.id },
       { followerId: regularUsers[2].id, followingId: streamer3.id },
       { followerId: regularUsers[3].id, followingId: streamer4.id },
