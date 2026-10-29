@@ -25,9 +25,18 @@ export async function recalculateGameScores(gameId: string) {
   const expertScore = calcAverage(experts);
   const streamerScore = calcAverage(streamers);
   const userScore = calcAverage(users);
+  const overallScore = Math.round((expertScore * 0.45 + streamerScore * 0.30 + userScore * 0.25) * 10) / 10;
+  const discussionCount = await prisma.comment.count({ where: { gameId } });
 
   await prisma.game.update({
     where: { id: gameId },
-    data: { expertScore, streamerScore, userScore }
+    data: {
+      expertScore,
+      streamerScore,
+      userScore,
+      overallScore,
+      reviewCount: reviews.length,
+      discussionCount,
+    }
   });
 }
