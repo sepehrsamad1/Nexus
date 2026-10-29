@@ -37,14 +37,16 @@ export async function Navbar() {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="hidden sm:flex relative">
+            <form action="/search" method="get" className="hidden sm:block relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-              <input 
-                type="text" 
-                placeholder="Search games, gear..." 
+              <input
+                name="q"
+                type="search"
+                placeholder="Search games, gear..."
+                aria-label="Global search"
                 className="w-64 pl-9 pr-4 py-1.5 text-sm bg-zinc-900 border border-zinc-800 rounded-full text-zinc-200 focus:outline-none focus:border-indigo-500 transition-all placeholder:text-zinc-600"
               />
-            </div>
+            </form>
 
             <CartIcon />
             <div className="h-6 w-px bg-zinc-800 mx-2"></div>
