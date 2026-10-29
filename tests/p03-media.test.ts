@@ -76,6 +76,7 @@ test('curated catalog seed contains the required 30 games and is deterministic',
   assert.match(seed, /const gameCatalog = \[/);
   assert.equal((seed.match(/prisma\.game\.create\(/g) ?? []).length, 1);
   assert.equal((seed.match(/\['[^']+/g) ?? []).length >= 30, true);
-  for (const title of expectedTitles) assert.equal(seed.includes(title), true, title);
+  const normalizedSeed = seed.replaceAll("\\\\'", "'");
+  for (const title of expectedTitles) assert.equal(normalizedSeed.includes(title), true, title);
   assert.equal(seed.includes('Math.random()'), false);
 });
