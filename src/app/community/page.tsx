@@ -38,7 +38,7 @@ export default async function CommunityFrontPage({
       : Promise.resolve(null),
   ]);
 
-  const roots = await prisma.comment.findMany({
+  const roots = selectedGame || !params.game ? await prisma.comment.findMany({
     where: {
       parentId: null,
       isDeleted: false,
@@ -52,7 +52,7 @@ export default async function CommunityFrontPage({
     },
     orderBy: { createdAt: 'desc' },
     take: 40,
-  });
+  }) : [];
 
   const orderedRoots = sort === 'hot'
     ? [...roots].sort((a, b) => discussionScore(b.upvotes, b.downvotes, b.createdAt) - discussionScore(a.upvotes, a.downvotes, a.createdAt))
@@ -180,7 +180,7 @@ export default async function CommunityFrontPage({
           <Gamepad2 className="mx-auto w-10 h-10 text-zinc-700" />
           <h2 className="mt-4 text-lg font-bold text-white">No discussions yet</h2>
           <p className="mt-2 text-sm text-zinc-500">
-            {selectedGame ? 'Start the first respectful discussion for this game.' : 'Choose a game above or check back when the community has new threads.'}
+            {params.game && !selectedGame ? 'That game filter is not available. Choose a game from the list above.' : selectedGame ? 'Start the first respectful discussion for this game.' : 'Choose a game above or check back when the community has new threads.'}
           </p>
         </div>
       )}
