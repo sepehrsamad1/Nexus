@@ -37,3 +37,45 @@ test('resilient media component handles image load failure without a broken-imag
   assert.match(content, /onError=\{\(\) => setFailed\(true\)\}/);
   assert.match(content, /role="img"/);
 });
+
+
+test('curated catalog seed contains the required 30 games and is deterministic', () => {
+  const seed = fs.readFileSync(path.join(process.cwd(), 'prisma/seed.ts'), 'utf8');
+  const expectedTitles = [
+    "Demon's Souls",
+    "Dark Souls",
+    "Dark Souls II",
+    "Dark Souls III",
+    "Bloodborne",
+    "Sekiro: Shadows Die Twice",
+    "Elden Ring",
+    "God of War",
+    "God of War Ragnarök",
+    "Uncharted 2: Among Thieves",
+    "Uncharted 4: A Thief's End",
+    "Assassin's Creed II",
+    "Assassin's Creed Brotherhood",
+    "Assassin's Creed Revelations",
+    "The Elder Scrolls V: Skyrim",
+    "Dota 2",
+    "Counter-Strike 2",
+    "Devil May Cry 3: Special Edition",
+    "Devil May Cry 5",
+    "Clair Obscur: Expedition 33",
+    "Red Dead Redemption 2",
+    "The Witcher 3: Wild Hunt",
+    "Baldur's Gate 3",
+    "Cyberpunk 2077",
+    "Hollow Knight",
+    "Resident Evil 4 Remake",
+    "Black Myth: Wukong",
+    "Monster Hunter: World",
+    "Hades",
+    "Resident Evil Requiem",
+  ];
+  assert.match(seed, /const gameCatalog = \[/);
+  assert.equal((seed.match(/prisma\.game\.create\(/g) ?? []).length, 1);
+  assert.equal((seed.match(/\['[^']+/g) ?? []).length >= 30, true);
+  for (const title of expectedTitles) assert.equal(seed.includes(title), true, title);
+  assert.equal(seed.includes('Math.random()'), false);
+});
