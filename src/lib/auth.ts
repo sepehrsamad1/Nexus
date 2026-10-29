@@ -1,7 +1,6 @@
 import { cookies } from 'next/headers';
+import { roleSchema } from '@/lib/validation';
 
-// Mock Auth System for Instant Testing
-// In a real app, this would be Auth.js/NextAuth or Clerk
 export type Role = 'USER' | 'STREAMER' | 'EXPERT' | 'ADMIN';
 
 export interface SessionUser {
@@ -19,13 +18,14 @@ export const DEMO_USERS: Record<Role, SessionUser> = {
   ADMIN: { id: "adm_demo123", name: "System Admin", email: "admin@nexus.gg", role: "ADMIN", image: "https://api.dicebear.com/7.x/avataaars/svg?seed=admin1" },
 };
 
+/**
+ * Nexus demo authentication only.
+ * This simulated persona switcher is for the university prototype.
+ * It is NOT production authentication and must never be presented as such.
+ */
 export async function getSession(): Promise<{ user: SessionUser } | null> {
   const cookieStore = await cookies();
-  const currentRole = cookieStore.get('nexus_demo_role')?.value as Role;
-  
-  if (currentRole && DEMO_USERS[currentRole]) {
-    return { user: DEMO_USERS[currentRole] };
-  }
-  
-  return { user: DEMO_USERS.USER }; // Default to USER
+  const rawRole = cookieStore.get('nexus_demo_role')?.value;
+  const parsedRole = roleSchema.safeParse(rawRole);
+  return { user: DEMO_USERS[parsedRole.success ? parsedRole.data : 'USER'] };
 }
