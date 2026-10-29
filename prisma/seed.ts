@@ -289,6 +289,27 @@ async function main() {
       }
     });
 
+    // A separate game-level discussion thread powers the community feed.
+    // This is explicitly seeded demo content, not a real user quote.
+    const gameDiscussion = await prisma.comment.create({
+      data: {
+        gameId: game.id,
+        authorId: regularUsers[2].id,
+        content: `Seeded game discussion for ${game.title}: what mechanic, encounter, or moment stands out most in this demo?`,
+        upvotes: 64,
+      },
+    });
+
+    await prisma.comment.create({
+      data: {
+        gameId: game.id,
+        parentId: gameDiscussion.id,
+        authorId: regularUsers[3].id,
+        content: `Seeded reply for ${game.title}: this reply demonstrates nested community discussion and is not a real user quote.`,
+        upvotes: 21,
+      },
+    });
+
     // 2 Regular User Reviews per game
     for (let i = 2; i < 4; i++) {
       await prisma.review.create({
@@ -310,7 +331,7 @@ async function main() {
     const overallScore = Math.round((game.expertScore * 0.45 + game.streamerScore * 0.30 + game.userScore * 0.25) * 10) / 10;
     await prisma.game.update({
       where: { id: game.id },
-      data: { overallScore, reviewCount: 4, discussionCount: 3 },
+      data: { overallScore, reviewCount: 4, discussionCount: await prisma.comment.count({ where: { gameId: game.id, reviewId: null, isDeleted: false } }) },
     });
   }
 
