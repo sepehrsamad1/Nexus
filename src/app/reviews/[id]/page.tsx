@@ -86,7 +86,7 @@ export default async function ReviewThreadPage({ params }: { params: Promise<{ i
           </div>
 
           <div className="pl-0 sm:pl-16">
-            <RootCommentForm reviewId={review.id} gameId={review.gameId} />
+            <RootCommentForm reviewId={review.id} />
             <h2 className="text-xl font-bold text-white mb-6">Comments ({review.comments.length})</h2>
             <CommentTree comments={commentTree} reviewAuthorId={review.authorId} reviewId={review.id} />
           </div>
