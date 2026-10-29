@@ -4,6 +4,7 @@ import { MetascoreBadge } from '@/components/MetascoreBadge';
 import { MediaImage } from '@/components/MediaImage';
 import { collectGameFacets, filterAndSortGames, SCORE_SOURCES, type GameSort, type ScoreSource } from '@/lib/discovery';
 import { Search, SlidersHorizontal, Trophy } from 'lucide-react';
+import { safeJsonParse } from '@/lib/utils';
 
 const validScoreSources: ScoreSource[] = ['expert', 'creator', 'user'];
 const validSorts: GameSort[] = ['score-desc', 'title-asc', 'release-newest', 'release-oldest'];
