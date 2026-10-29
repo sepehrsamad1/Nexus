@@ -122,7 +122,7 @@ export async function createComment(data: { reviewId?: string; gameId?: string; 
             where: { id: parentId },
             select: { id: true, reviewId: true, gameId: true, isDeleted: true },
           });
-          if (!parent || parent.isDeleted || parent.reviewId !== reviewId || parent.gameId !== null) {
+          if (!parent || parent.isDeleted || parent.reviewId !== reviewId || (parent.gameId !== null && parent.gameId !== review.gameId)) {
             throw new Error('Invalid parent comment');
           }
         }
