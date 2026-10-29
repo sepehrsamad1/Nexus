@@ -34,6 +34,6 @@ test('main media journeys do not contain known placeholder-image strings', () =>
 
 test('resilient media component handles image load failure without a broken-image surface', () => {
   const content = fs.readFileSync(path.join(process.cwd(), 'src/components/MediaImage.tsx'), 'utf8');
-  assert.match(content, /onError={() => setFailed(true)}/);
+  assert.match(content, /onError=\{\(\) => setFailed\(true\)\}/);
   assert.match(content, /role="img"/);
 });
