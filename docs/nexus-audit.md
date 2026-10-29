@@ -17,7 +17,7 @@ It is **not ready to advance directly into feature expansion**. The repository h
 |---|---|---|
 | P00 Repository audit | DONE | Repository structure and core data flows reviewed. |
 | P01 Foundation integrity | PARTIALLY DONE / BLOCKED | Demo auth is client-cookie-role based; role mutation is weakly validated; review/comment validation is weak. |
-| P02 Commerce integrity | BROKEN / BLOCKED | Checkout trusts client items/total; fulfillment is sequential and not transactional; digital-key quantity is not fulfilled correctly. |
+| P02 Commerce integrity | IMPLEMENTED / RUNTIME VERIFICATION PENDING | Checkout now accepts only server-resolved item identity/type/quantity; prices, totals and stock come from Prisma records; fulfillment is transactional and digital quantity N consumes/delivers N keys. |
 | P03 Media foundation | MISSING | No clear centralized media/asset foundation; game/product data relies heavily on remote image URLs. |
 | P04 Game catalog expansion | PARTIALLY DONE | Only 4 games are seeded; target catalog is 30 curated games. |
 | P05 Game detail experience | PARTIALLY DONE | Existing detail flow exists, but media/trailer/gallery quality needs expansion. |
@@ -339,4 +339,35 @@ verification:
 remaining:
   - run_typecheck_lint_tests_in_local_or_ci_environment
   - P02
+```
+
+
+## P02 completion record
+
+```yaml
+task: P02
+status: implementation_complete_runtime_verification_pending
+branch: audit/foundation-fixes
+completed:
+  - server_authoritative_checkout_identity
+  - server_authoritative_prices
+  - server_authoritative_total
+  - server_authoritative_stock
+  - strict_cart_payload_validation
+  - duplicate_cart_item_rejection
+  - zero_and_negative_quantity_rejection
+  - unavailable_item_rejection
+  - tampered_price_and_total_rejection
+  - exact_multi_key_digital_fulfillment
+  - transactional_inventory_and_key_updates
+  - transactional_order_and_order_item_creation
+  - simulated_payment_preserved
+  - targeted_commerce_tests_added
+verification:
+  typecheck: not_run_connector_has_no_runtime_workspace
+  lint: not_run_connector_has_no_runtime_workspace
+  tests: not_run_connector_has_no_runtime_workspace
+remaining:
+  - run_typecheck_lint_tests_in_local_or_ci_environment
+  - P03
 ```
