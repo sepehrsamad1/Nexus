@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { AddToCartButton } from '@/components/store/AddToCartButton';
+import { MediaImage } from '@/components/MediaImage';
 import { safeJsonParse } from '@/lib/utils';
 import { ArrowLeft, CheckCircle2, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
@@ -18,6 +19,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   if (!product) notFound();
   
   const specs = safeJsonParse<Record<string, string>>(product.specsJson, {});
+  const gallery = safeJsonParse<string[]>(product.imagesJson, []);
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 py-12 min-h-screen">
@@ -27,10 +29,19 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
         {/* Images */}
-        <div className="aspect-square bg-zinc-900 border border-zinc-800 rounded-3xl flex items-center justify-center p-12">
-           <div className="w-64 h-64 bg-zinc-800 rounded-full shadow-2xl flex items-center justify-center">
-             <span className="text-zinc-600 font-bold">Product Image</span>
-           </div>
+        <div className="space-y-4">
+          <div className="aspect-square bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
+            <MediaImage src={gallery[0] || null} alt={`${product.name} product image`} fallbackLabel="Product image unavailable" />
+          </div>
+          {gallery.length > 1 && (
+            <div className="grid grid-cols-4 gap-3" aria-label="Product image gallery">
+              {gallery.slice(1, 5).map((image, index) => (
+                <div key={image + index} className="aspect-square overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950">
+                  <MediaImage src={image} alt={`${product.name} gallery image ${index + 2}`} />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Details */}
@@ -50,7 +61,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             id={product.id}
             name={product.name}
             price={product.price}
-            image="https://via.placeholder.com/150/18181b/ffffff?text=GEAR"
+            image={gallery[0] || ''}
             type="PHYSICAL_GEAR"
             category={product.category}
             className="w-full sm:w-auto px-12 py-4 text-lg rounded-xl mb-10 shadow-lg shadow-indigo-500/25"
@@ -59,7 +70,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           {/* Streamer Endorsement */}
           {product.recommendedByStreamer && (
             <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 mb-8 flex items-center gap-4">
-               <img src={product.recommendedByStreamer.image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${product.recommendedByStreamer.id}`} alt="Streamer" className="w-12 h-12 rounded-full" />
+               <div className="w-12 h-12 overflow-hidden rounded-full bg-zinc-800">
+                <MediaImage src={product.recommendedByStreamer.image} alt={`${product.recommendedByStreamer.name} avatar`} fallbackLabel="Avatar unavailable" />
+              </div>
                <div>
                  <div className="text-sm font-bold text-purple-400 uppercase tracking-wide flex items-center gap-1"><ShieldCheck className="w-4 h-4"/> Streamer Choice</div>
                  <div className="text-zinc-300 text-sm">Used by <strong>{product.recommendedByStreamer.name}</strong></div>
