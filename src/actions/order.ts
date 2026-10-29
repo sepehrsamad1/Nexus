@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { safeJsonParse } from '@/lib/utils';
 import { checkoutPayloadSchema } from '@/lib/validation';
+import { consumeDigitalKeys } from '@/lib/commerce';
 import type { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
@@ -55,10 +56,13 @@ export async function fulfillMockOrder(input: unknown) {
         if (!game || game.digitalPrice <= 0) throw new CommerceValidationError('The selected digital game is unavailable.');
 
         const stockKeys = safeJsonParse<string[]>(game.stockKeysJson, []);
-        if (stockKeys.length < item.quantity) throw new CommerceValidationError('Insufficient digital-key stock.');
-
-        const keysForOrder = stockKeys.slice(-item.quantity);
-        const remainingKeys = stockKeys.slice(0, -item.quantity);
+        let keysForOrder: string[];
+        let remainingKeys: string[];
+        try {
+          ({ delivered: keysForOrder, remaining: remainingKeys } = consumeDigitalKeys(stockKeys, item.quantity));
+        } catch {
+          throw new CommerceValidationError('Insufficient digital-key stock.');
+        }
         await tx.game.update({
           where: { id: game.id },
           data: { stockKeysJson: JSON.stringify(remainingKeys) },
