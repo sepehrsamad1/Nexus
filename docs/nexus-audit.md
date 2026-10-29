@@ -126,3 +126,188 @@ The GitHub repository connector cannot truthfully claim that local commands were
 **P00 is complete as a repository/static audit. The next implementation task should be P01, not P04/P07/P17.**
 
 No production deployment or real payment integration should be introduced. The project remains a university-scale prototype with simulated checkout.
+
+
+## Machine-readable implementation checklist
+
+```yaml
+audit:
+  id: P00
+  status: complete_static
+  branch: audit/foundation-fixes
+  baseline_commit: 2bbd7f21253925b1ab8686194a870944bdfaf2a
+  runtime_verified: false
+
+checks:
+  repository_structure: done
+  package_scripts: done
+  prisma_schema: done
+  seed_data: done
+  authentication_session: done
+  authorization_admin: done
+  commerce_checkout: done
+  order_fulfillment: done
+  reviews: done
+  community_comments_votes: done
+  game_discovery_filtering: done
+  navigation_search: done
+  store_catalog: done
+  profiles_orders: done
+  homepage_demo_residue: done
+  git_history: done
+
+findings:
+  - id: P01-AUTH-001
+    priority: critical
+    area: authentication
+    status: open
+    issue: demo_role_cookie_is_authoritative
+    dependency: none
+
+  - id: P01-AUTH-002
+    priority: high
+    area: authorization
+    status: open
+    issue: admin_role_mutation_accepts_arbitrary_string
+    dependency: P01-AUTH-001
+
+  - id: P01-VAL-001
+    priority: high
+    area: validation
+    status: open
+    issue: review_and_comment_payload_validation_is_weak
+    dependency: P01-AUTH-001
+
+  - id: P02-COMMERCE-001
+    priority: critical
+    area: checkout
+    status: open
+    issue: client_controls_prices_quantities_and_total
+    dependency: P01
+
+  - id: P02-COMMERCE-002
+    priority: critical
+    area: fulfillment
+    status: open
+    issue: digital_key_quantity_can_exceed_delivered_keys
+    dependency: P02-COMMERCE-001
+
+  - id: P02-COMMERCE-003
+    priority: critical
+    area: fulfillment
+    status: open
+    issue: inventory_and_order_creation_are_not_transactional
+    dependency: P02-COMMERCE-001
+
+  - id: P03-MEDIA-001
+    priority: high
+    area: media
+    status: open
+    issue: no_central_media_asset_policy
+    dependency: P01
+
+  - id: P04-CATALOG-001
+    priority: high
+    area: catalog
+    status: open
+    issue: only_four_seeded_games_vs_target_of_thirty
+    dependency: P03
+
+  - id: P04-DATA-001
+    priority: high
+    area: seed
+    status: open
+    issue: random_scores_and_votes_make_seed_non_deterministic
+    dependency: P01
+
+  - id: P05-MEDIA-002
+    priority: medium
+    area: game_detail
+    status: open
+    issue: game_detail_needs_richer_media_gallery_and_trailer_support
+    dependency: P04-CATALOG-001
+
+  - id: P06-DISCOVERY-001
+    priority: high
+    area: discovery
+    status: open
+    issue: expert_streamer_user_sort_selector_is_nonfunctional
+    dependency: P04-CATALOG-001
+
+  - id: P06-DISCOVERY-002
+    priority: high
+    area: navigation
+    status: open
+    issue: navbar_search_input_has_no_search_behavior
+    dependency: P06-DISCOVERY-001
+
+  - id: P07-CREATOR-001
+    priority: high
+    area: creators
+    status: open
+    issue: no_follow_graph_or_creator_reputation_model
+    dependency: P04-CATALOG-001
+
+  - id: P09-SCORE-001
+    priority: medium
+    area: scoring
+    status: open
+    issue: scoring_engine_is_basic_and_rules_need_explicit_definition
+    dependency: P07-CREATOR-001
+
+  - id: P11-STORE-001
+    priority: medium
+    area: store
+    status: open
+    issue: catalog_is_small_and_product_media_contains_placeholders
+    dependency: P03
+
+  - id: P12-CART-001
+    priority: medium
+    area: cart
+    status: open
+    issue: wishlist_is_missing_and_cart_discovery_ux_is_incomplete
+    dependency: P11-STORE-001
+
+  - id: P14-HOME-001
+    priority: medium
+    area: homepage
+    status: open
+    issue: development_milestone_copy_is_visible_to_end_users
+    dependency: P05,P07,P08,P11
+
+  - id: P18-QA-001
+    priority: blocking_for_release
+    area: qa
+    status: open
+    issue: runtime_build_seed_and_browser_checks_have_not_been_verified_by_connector
+    dependency: all_previous_tasks
+
+dependency_map:
+  P00: []
+  P01: [P00]
+  P02: [P01]
+  P03: [P01]
+  P04: [P03]
+  P05: [P04]
+  P06: [P04]
+  P07: [P04]
+  P08: [P07]
+  P09: [P04, P07, P08]
+  P10: [P03, P08]
+  P11: [P02, P03]
+  P12: [P11]
+  P13: [P02, P12]
+  P14: [P05, P07, P08, P11]
+  P15: [P07, P12]
+  P16: [P01, P07, P08, P11]
+  P17: [P05, P06, P07, P08, P09, P10, P11, P12, P13, P14, P15, P16]
+  P18: [P01, P02, P03, P04, P05, P06, P07, P08, P09, P10, P11, P12, P13, P14, P15, P16, P17]
+
+recommended_next:
+  - P01
+  - P02
+  - P03
+  - P04
+  - parallel_after_P04: [P05, P06, P07, P11]
+```
