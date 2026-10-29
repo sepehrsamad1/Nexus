@@ -41,3 +41,16 @@ export const voteInputSchema = z.object({
   type: z.enum(['REVIEW', 'COMMENT']),
   value: z.union([z.literal(1), z.literal(-1)]),
 });
+
+
+export const cartItemTypeSchema = z.enum(['DIGITAL_KEY', 'PHYSICAL_GEAR']);
+
+export const checkoutItemSchema = z.object({
+  id: idSchema,
+  type: cartItemTypeSchema,
+  quantity: z.coerce.number().int().min(1).max(99),
+}).strict();
+
+export const checkoutPayloadSchema = z.object({
+  items: z.array(checkoutItemSchema).min(1).max(100),
+}).strict();
