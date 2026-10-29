@@ -39,14 +39,14 @@ export function CartDrawer() {
             </div>
           ) : (
             items.map(item => (
-              <div key={item.id} className="flex gap-4 bg-zinc-900/50 p-3 rounded-xl border border-zinc-800">
+              <div key={item.type + ':' + item.id} className="flex gap-4 bg-zinc-900/50 p-3 rounded-xl border border-zinc-800">
                 <img src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded-lg bg-zinc-800" />
                 <div className="flex-1 flex flex-col justify-between">
                   <div>
                     <h3 className="text-white font-bold text-sm line-clamp-1">{item.name}</h3>
                     <div className="text-xs font-medium mt-1 flex items-center gap-1 text-zinc-400">
                       {item.type === 'DIGITAL_KEY' ? <Key className="w-3 h-3 text-emerald-400" /> : <Package className="w-3 h-3 text-amber-400" />}
-                      {item.type === 'DIGITAL_KEY' ? 'Instant Digital Delivery' : 'Physical Shipping'}
+                      {item.type === 'DIGITAL_KEY' ? 'Instant Digital Delivery — multiple keys supported' : 'Physical Shipping'}
                     </div>
                   </div>
                   <div className="flex items-center justify-between mt-2">
