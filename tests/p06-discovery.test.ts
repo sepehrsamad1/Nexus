@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import { filterAndSortGames, gameMatchesQuery, productMatchesQuery } from '../src/lib/discovery';
 
 const games = [
-  { title: 'Dota 2', description: 'Competitive MOBA', developer: 'Valve', publisher: 'Valve', genresJson: JSON.stringify(['MOBA','Strategy']), platformsJson: JSON.stringify(['PC']), expertScore: 90, streamerScore: 95, userScore: 91, releaseDate: new Date('2013-07-09') },
+  { title: 'Dota 2', description: 'Competitive MOBA', developer: 'Valve', publisher: 'Valve', genresJson: JSON.stringify(['MOBA','Strategy']), platformsJson: JSON.stringify(['PC']), expertScore: 90, streamerScore: 99, userScore: 91, releaseDate: new Date('2013-07-09') },
   { title: 'Elden Ring', description: 'Open world action RPG', developer: 'FromSoftware', publisher: 'Bandai Namco', genresJson: JSON.stringify(['RPG','Action','Open World']), platformsJson: JSON.stringify(['PC','PS5']), expertScore: 96, streamerScore: 98, userScore: 94, releaseDate: new Date('2022-02-25') },
   { title: 'Counter-Strike 2', description: 'Tactical shooter', developer: 'Valve', publisher: 'Valve', genresJson: JSON.stringify(['FPS','Tactical','Competitive']), platformsJson: JSON.stringify(['PC']), expertScore: 82, streamerScore: 93, userScore: 88, releaseDate: new Date('2023-09-27') },
 ];
@@ -28,7 +28,7 @@ test('P06 genre/platform filters narrow the real game result set', () => {
 
 test('P06 score source selector changes ranking and selected score', () => {
   assert.deepEqual(filterAndSortGames(games, { scoreSource: 'expert' }).map(g => g.title), ['Elden Ring', 'Dota 2', 'Counter-Strike 2']);
-  assert.deepEqual(filterAndSortGames(games, { scoreSource: 'creator' }).map(g => g.title), ['Elden Ring', 'Dota 2', 'Counter-Strike 2']);
+  assert.deepEqual(filterAndSortGames(games, { scoreSource: 'creator' }).map(g => g.title), ['Dota 2', 'Elden Ring', 'Counter-Strike 2']);
   assert.deepEqual(filterAndSortGames(games, { scoreSource: 'user', sort: 'score-desc' }).map(g => g.title), ['Elden Ring', 'Dota 2', 'Counter-Strike 2']);
   assert.equal(filterAndSortGames(games, { scoreSource: 'creator' })[0].streamerScore, 98);
 });
