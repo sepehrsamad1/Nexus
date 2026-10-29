@@ -196,7 +196,7 @@ async function main() {
         roleAtCreation: 'EXPERT',
         score: game.expertScore,
         title: `A masterpiece in ${game.genresJson.includes('RPG') ? 'storytelling' : 'gameplay'}.`,
-        content: `After spending 80 hours with ${game.title}, it is clear that the developers have pushed the boundaries...`,
+        content: `Seeded expert-perspective placeholder for ${game.title}; score and metadata are deterministic demo data, not a published critic quote.`,
         prosJson: JSON.stringify(['Incredible visuals', 'Deep mechanics']),
         consJson: JSON.stringify(['Slight pacing issues']),
         upvotes: 450,
@@ -210,11 +210,11 @@ async function main() {
         authorId: streamers[1].id, // Shroud
         roleAtCreation: 'STREAMER',
         score: game.streamerScore,
-        title: `My honest thoughts after 100 hours.`,
-        content: `Chat, this game is actually insane. The movement tech is crazy.`,
-        videoUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ", // Dummy URL
-        prosJson: JSON.stringify(['God tier movement', 'Hitreg is solid']),
-        consJson: JSON.stringify(['Menu UI is clunky']),
+        title: `Seeded creator perspective`,
+        content: `Seeded creator-perspective placeholder for ${game.title}; this text is demo content and does not represent a real creator statement.`,
+        videoUrl: undefined,
+        prosJson: JSON.stringify(['Seeded gameplay highlight', 'Representative strengths']),
+        consJson: JSON.stringify(['Representative trade-off']),
         upvotes: 1200,
       }
     });
@@ -225,7 +225,7 @@ async function main() {
         reviewId: streamerReview.id,
         gameId: game.id,
         authorId: regularUsers[0].id,
-        content: "I completely disagree about the movement, it feels super floaty compared to the beta.",
+        content: `Seeded community discussion for ${game.title}; replace with a real user contribution in a live environment.`,
         upvotes: 245
       }
     });
@@ -236,7 +236,7 @@ async function main() {
         gameId: game.id,
         parentId: rootComment.id, // Self-relation nested
         authorId: regularUsers[1].id,
-        content: "Are you crazy? The movement is the best part! You just need to learn the slide-cancel timing.",
+        content: `Seeded reply discussing the gameplay of ${game.title}; this is demonstration content, not a real user quote.`,
         upvotes: 89
       }
     });
@@ -248,7 +248,7 @@ async function main() {
         gameId: game.id,
         parentId: level2Reply.id, // Deeply nested
         authorId: streamers[1].id, // OP replies
-        content: "Exactly. The slide-cancel timing is tight but once you get it, it's butter.",
+        content: `Seeded creator reply for ${game.title}; this is demonstration content, not a real creator quote.`,
         upvotes: 412
       }
     });
@@ -261,8 +261,8 @@ async function main() {
           authorId: regularUsers[i].id,
           roleAtCreation: 'USER',
           score: game.userScore - (i === 2 ? 2 : 4),
-          title: `Pretty good, but has flaws.`,
-          content: `I bought this on sale and it's worth it, but full price? Nah.`,
+          title: `Seeded player perspective`,
+          content: `Seeded player-perspective placeholder for ${game.title}; this is demonstration content and not a real purchase claim.`,
           upvotes: i === 2 ? 18 : 11,
         }
       });
