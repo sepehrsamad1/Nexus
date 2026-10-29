@@ -1,7 +1,6 @@
 import { cookies } from 'next/headers';
 import { roleSchema } from '@/lib/validation';
-
-export type Role = 'USER' | 'STREAMER' | 'EXPERT' | 'ADMIN';
+import type { Role } from '@/lib/validation';
 
 export interface SessionUser {
   id: string;
