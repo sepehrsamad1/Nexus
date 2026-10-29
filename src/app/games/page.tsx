@@ -88,8 +88,8 @@ export default async function GamesDirectory({ searchParams }: { searchParams?: 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {games.map((game) => {
             const score = game[selectedScore.field];
-            const genres = JSON.parse(game.genresJson) as string[];
-            const platforms = JSON.parse(game.platformsJson) as string[];
+            const genres = safeJsonParse<string[]>(game.genresJson, []);
+            const platforms = safeJsonParse<string[]>(game.platformsJson, []);
             return (
               <Link key={game.id} href={`/games/${game.slug}`} className="group bg-zinc-900/50 border border-zinc-800 rounded-2xl overflow-hidden hover:border-indigo-500/50 hover:bg-zinc-900 transition-all flex flex-col">
                 <div className="h-48 relative overflow-hidden">
