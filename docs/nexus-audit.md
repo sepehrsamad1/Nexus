@@ -435,3 +435,36 @@ remaining:
 - Seed media registration is idempotent and provides COVER/HERO/TRAILER_THUMBNAIL references without downloading copyrighted assets.
 - P04 regression tests added for exact catalog membership, determinism, aggregate metadata, and media coverage.
 - Remaining verification: pull latest branch, run Prisma schema sync/generate, typecheck, tests, seed, and production build; then browser-check the full 30-game directory and representative detail pages.
+
+
+## P07 completion record
+
+```yaml
+task: P07
+status: implementation_complete_runtime_verification_pending
+branch: audit/foundation-fixes
+completed:
+  - creator_profile_model_and_demo_editorial_metadata
+  - creator_profile_and_discovery_pages
+  - creator_review_and_post_presentation
+  - follow_unfollow_server_action
+  - follow_uniqueness_constraint
+  - follow_target_and_self_follow_authorization
+  - follower_counts_and_discovery_ordering
+  - follower_count_kept_out_of_game_score_calculation
+  - seeded_demo_editorial_creator_profiles_follows_and_posts
+  - creator_platform_regression_tests_added
+verification:
+  local_typecheck: pending
+  local_tests: pending
+  local_seed: pending
+  local_build: pending
+remaining:
+  - run prisma generate and schema migration/sync locally
+  - run typecheck
+  - run full test suite
+  - run deterministic seed
+  - run production build
+  - browser-check creator discovery/profile/follow flows
+  - P08
+```
