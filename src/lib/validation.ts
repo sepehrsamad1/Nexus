@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const roleSchema = z.enum(['USER', 'STREAMER', 'EXPERT', 'ADMIN'] as const);
+export type Role = z.infer<typeof roleSchema>;
 
 export const idSchema = z.string().trim().min(1).max(64).regex(/^[A-Za-z0-9_-]+$/, 'Invalid identifier');
 
