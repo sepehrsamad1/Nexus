@@ -209,14 +209,14 @@ findings:
   - id: P04-CATALOG-001
     priority: high
     area: catalog
-    status: open
-    issue: only_four_seeded_games_vs_target_of_thirty
+    status: implemented
+    issue: curated_30_game_catalog
     dependency: P03
 
   - id: P04-DATA-001
     priority: high
     area: seed
-    status: open
+    status: implemented
     issue: random_scores_and_votes_make_seed_non_deterministic
     dependency: P01
 
@@ -377,7 +377,7 @@ remaining:
 
 ```yaml
 task: P03
-status: implementation_complete_runtime_verification_pending
+status: implementation_complete_runtime_verified
 branch: audit/foundation-fixes
 completed:
   - centralized_media_asset_model
@@ -393,11 +393,37 @@ completed:
   - media_foundation_tests_added
 verification:
   connector_runtime: not_available
+  local_typecheck: passed
+  local_tests: passed_16_of_16
+  local_build: passed
+remaining:
+  - browser-check main game/store journeys
+  - richer licensed/attributed gallery and trailer assets can continue during P05
+  - P04
+```
+
+
+## P04 completion record
+
+```yaml
+task: P04
+status: implementation_complete_runtime_verification_pending
+branch: audit/foundation-fixes
+completed:
+  - curated_30_game_catalog_added
+  - requested_game_titles_present
+  - deterministic_seed_scores_and_catalog
+  - remote_steam_media_urls_used_where_available
+  - digital_demo_stock_generated_for_catalog_games
+  - product_game_relationships_use_stable_slugs
+  - p04_catalog_regression_test_added
+verification:
   local_typecheck: pending
   local_tests: pending
+  local_seed: pending
 remaining:
-  - populate richer licensed/attributed gallery and trailer assets during catalog/media expansion
-  - run local typecheck/tests/build
-  - browser-check main game/store journeys
-  - P04
+  - run local typecheck/tests
+  - run database seed
+  - browser-check games directory and representative game details
+  - P05/P06/P07/P11 may proceed in parallel after P04 verification
 ```
