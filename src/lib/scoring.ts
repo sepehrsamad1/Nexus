@@ -10,7 +10,7 @@ export async function recalculateGameScores(gameId: string) {
   if (reviews.length === 0) {
     await prisma.game.update({
       where: { id: gameId },
-      data: { expertScore: 0, streamerScore: 0, userScore: 0 }
+      data: { expertScore: 0, streamerScore: 0, userScore: 0, overallScore: 0, reviewCount: 0, discussionCount: 0 }
     });
     return;
   }
