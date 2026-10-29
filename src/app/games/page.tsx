@@ -5,9 +5,11 @@ import { MediaImage } from '@/components/MediaImage';
 import { safeJsonParse } from '@/lib/utils';
 import { Trophy, Filter } from 'lucide-react';
 
-export default async function GamesDirectory() {
+export default async function GamesDirectory({ searchParams }: { searchParams?: Promise<{ sort?: string }> }) {
+  const params = (await searchParams) ?? {};
+  const sort = params.sort === 'streamer' ? 'streamerScore' : params.sort === 'user' ? 'userScore' : 'expertScore';
   const games = await prisma.game.findMany({
-    orderBy: { expertScore: 'desc' },
+    orderBy: { [sort]: 'desc' },
   });
 
   return (
@@ -17,13 +19,13 @@ export default async function GamesDirectory() {
           <h1 className="text-4xl font-black text-white flex items-center gap-3">
             <Trophy className="w-8 h-8 text-amber-400" /> Games Directory
           </h1>
-          <p className="text-zinc-400 mt-2 text-lg">Browse games sorted by Expert Metascore.</p>
+          <p className="text-zinc-400 mt-2 text-lg">Browse the 30-game Nexus catalog by Expert, Creator, or Player score.</p>
         </div>
         <div className="flex items-center gap-3 bg-zinc-900 border border-zinc-800 rounded-lg p-2">
           <Filter className="w-5 h-5 text-zinc-400 ml-2" />
-          <select aria-label="Game sort order" className="bg-transparent text-white border-none focus:ring-0 text-sm font-medium pr-8 outline-none">
+          <select aria-label="Game sort order" defaultValue={sort === 'streamerScore' ? 'streamer' : sort === 'userScore' ? 'user' : 'expert'} onChange={(event) => { window.location.search = event.target.value === 'expert' ? '' : `?sort=${event.target.value}`; }} className="bg-transparent text-white border-none focus:ring-0 text-sm font-medium pr-8 outline-none">
             <option value="expert">Sort by: Expert Score</option>
-            <option value="streamer">Sort by: Streamer Score</option>
+            <option value="streamer">Sort by: Creator Score</option>
             <option value="user">Sort by: User Score</option>
           </select>
         </div>
@@ -55,7 +57,7 @@ export default async function GamesDirectory() {
                 </div>
                 <div className="mt-auto pt-4 border-t border-zinc-800 flex items-center justify-between text-xs text-zinc-400 font-medium">
                   <div className="flex gap-4">
-                    <span>📺 {game.streamerScore || '--'} Streamer</span>
+                    <span>📺 {game.streamerScore || '--'} Creator</span>
                     <span>🎮 {game.userScore || '--'} User</span>
                   </div>
                 </div>
