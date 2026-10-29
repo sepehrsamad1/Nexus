@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { getSession } from '@/lib/auth';
 import { MetascoreBadge } from '@/components/MetascoreBadge';
 import { ReviewModal } from '@/components/reviews/ReviewModal';
+import { RootCommentForm } from '@/components/discussion/RootCommentForm';
+import { CommentTree } from '@/components/discussion/CommentTree';
 import { ReviewCommerceSidebar } from '@/components/store/ReviewCommerceSidebar';
 import { MediaImage } from '@/components/MediaImage';
 import { safeJsonParse } from '@/lib/utils';
@@ -31,6 +33,22 @@ function scoreBar(score: number) {
   return Math.max(0, Math.min(100, score));
 }
 
+function buildCommentTree(flatComments: any[]) {
+  const nodes = new Map(flatComments.map(comment => [comment.id, { ...comment, replies: [] as any[] }]));
+  const roots: any[] = [];
+  for (const comment of flatComments) {
+    const node = nodes.get(comment.id);
+    if (!node) continue;
+    if (comment.parentId) {
+      const parent = nodes.get(comment.parentId);
+      if (parent) parent.replies.push(node);
+    } else {
+      roots.push(node);
+    }
+  }
+  return roots;
+}
+
 export default async function GameDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const session = await getSession();
@@ -47,16 +65,16 @@ export default async function GameDetailPage({ params }: { params: Promise<{ slu
 
   if (!game) notFound();
 
-  const [media, comments, relatedCandidates, relatedProducts] = await Promise.all([
+  const [media, discussionComments, relatedCandidates, relatedProducts] = await Promise.all([
     prisma.mediaAsset.findMany({
       where: { entityType: 'GAME', entityId: game.id },
       orderBy: { sortOrder: 'asc' },
     }),
     prisma.comment.findMany({
-      where: { gameId: game.id, isDeleted: false },
+      where: { gameId: game.id, reviewId: null, isDeleted: false },
       include: { author: true },
-      orderBy: [{ upvotes: 'desc' }, { createdAt: 'desc' }],
-      take: 4,
+      orderBy: { createdAt: 'asc' },
+      take: 200,
     }),
     prisma.game.findMany({
       where: { id: { not: game.id } },
@@ -96,6 +114,26 @@ export default async function GameDetailPage({ params }: { params: Promise<{ slu
   const fallbackProducts = relatedProducts.length > 0
     ? relatedProducts
     : await prisma.product.findMany({ orderBy: { stock: 'desc' }, take: 4 });
+
+  const discussionVoteRows = session?.user
+    ? await prisma.vote.findMany({
+        where: { userId: session.user.id, commentId: { in: discussionComments.map(comment => comment.id) } },
+        select: { commentId: true, value: true },
+      })
+    : [];
+  const discussionVoteMap = new Map(discussionVoteRows.map(vote => [vote.commentId, vote.value as 1 | -1]));
+  const commentTree = buildCommentTree(discussionComments).map(root => ({
+    ...root,
+    initialUserVote: discussionVoteMap.get(root.id) ?? 0,
+  }));
+  for (const root of commentTree) {
+    const stack = [...root.replies];
+    while (stack.length) {
+      const node = stack.pop();
+      node.initialUserVote = discussionVoteMap.get(node.id) ?? 0;
+      stack.push(...(node.replies || []));
+    }
+  }
 
   const reviewsByRole = {
     EXPERT: game.reviews.find(review => review.roleAtCreation === 'EXPERT'),
@@ -252,21 +290,20 @@ export default async function GameDetailPage({ params }: { params: Promise<{ slu
               <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
                 <div>
                   <h2 id="community" className="text-2xl font-black text-white">Community Discussion</h2>
-                  <p className="text-sm text-zinc-500 mt-1">{game.discussionCount} comments around this game.</p>
+                  <p className="text-sm text-zinc-500 mt-1">{game.discussionCount} community comments, with nested replies and voting.</p>
                 </div>
                 <Link href="/community" className="text-sm font-bold text-indigo-400 hover:text-indigo-300">Community <ArrowRight className="inline h-4 w-4" /></Link>
               </div>
-              <div className="mt-5 space-y-3">
-                {comments.length > 0 ? comments.map(comment => (
-                  <article key={comment.id} className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="font-bold text-white">{comment.author.name}</span>
-                      <span className="text-xs text-zinc-500">{comment.upvotes - comment.downvotes} votes</span>
-                    </div>
-                    <p className="mt-2 text-sm leading-relaxed text-zinc-400 line-clamp-2">{comment.content}</p>
-                  </article>
-                )) : (
-                  <div className="rounded-xl border border-dashed border-zinc-800 p-6 text-center text-sm text-zinc-500">No discussion yet. Be the first to start one.</div>
+              {session?.user && <div className="mt-5"><RootCommentForm gameId={game.id} /></div>}
+              <div className="mt-5">
+                {commentTree.length > 0 ? (
+                  <CommentTree comments={commentTree} gameId={game.id} />
+                ) : (
+                  <div className="rounded-xl border border-dashed border-zinc-800 p-8 text-center">
+                    <MessageSquare className="mx-auto h-8 w-8 text-zinc-700" />
+                    <p className="mt-3 text-sm font-bold text-white">No game discussion yet</p>
+                    <p className="mt-1 text-sm text-zinc-500">Start the first respectful thread for {game.title}.</p>
+                  </div>
                 )}
               </div>
             </section>
