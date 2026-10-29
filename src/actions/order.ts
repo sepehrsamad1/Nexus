@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { safeJsonParse } from '@/lib/utils';
 import { checkoutPayloadSchema } from '@/lib/validation';
-import { consumeDigitalKeys } from '@/lib/commerce';
+import { consumeDigitalKeys, normalizeCheckoutItems as normalizeCommerceItems } from '@/lib/commerce';
 import type { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
@@ -25,19 +25,7 @@ export async function runCommerceTransaction<T>(
   });
 }
 
-export function normalizeCheckoutItems(input: unknown) {
-  const parsed = checkoutPayloadSchema.safeParse(input);
-  if (!parsed.success) throw new CommerceValidationError('Invalid cart contents.');
-
-  const seen = new Set<string>();
-  for (const item of parsed.data.items) {
-    const key = `${item.type}:${item.id}`;
-    if (seen.has(key)) throw new CommerceValidationError('Duplicate cart items are not allowed.');
-    seen.add(key);
-  }
-
-  return parsed.data.items;
-}
+export const normalizeCheckoutItems = normalizeCommerceItems;
 
 export async function fulfillMockOrder(input: unknown) {
   const session = await getSession();
