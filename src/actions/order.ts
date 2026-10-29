@@ -3,7 +3,6 @@ import 'server-only';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { safeJsonParse } from '@/lib/utils';
-import { checkoutPayloadSchema } from '@/lib/validation';
 import { consumeDigitalKeys, normalizeCheckoutItems as normalizeCommerceItems } from '@/lib/commerce';
 import type { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
