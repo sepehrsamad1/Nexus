@@ -10,6 +10,8 @@ const validItem = { id: 'game_123', type: 'DIGITAL_KEY', quantity: 1 };
 test('checkout rejects client-supplied authoritative price or total fields', () => {
   assert.equal(checkoutPayloadSchema.safeParse({ items: [{ ...validItem, price: 1 }] }).success, false);
   assert.equal(checkoutPayloadSchema.safeParse({ items: [validItem], total: 1 }).success, false);
+  assert.equal(checkoutPayloadSchema.safeParse({ items: [{ ...validItem, type: 'NOT_A_REAL_TYPE' }] }).success, false);
+  assert.equal(checkoutPayloadSchema.safeParse({ items: [{ ...validItem, quantity: '2' }] }).success, false);
 });
 
 test('checkout rejects zero and negative quantities', () => {
