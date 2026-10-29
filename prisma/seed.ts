@@ -165,6 +165,23 @@ async function main() {
     })
   ]);
 
+  // 4. Register remote demo media without downloading copyrighted assets into the repository.
+  // Production/demo data can replace these URLs and attribution fields without changing UI code.
+  await prisma.mediaAsset.createMany({
+    data: games.map((game) => ({
+      entityType: 'GAME',
+      entityId: game.id,
+      kind: 'COVER',
+      url: game.coverImage,
+      altText: `${game.title} cover art`,
+      source: 'Remote demo URL',
+      sourceUrl: game.coverImage,
+      attribution: 'Verify creator attribution before production use',
+      license: 'Unverified demo source; replace with licensed media for production',
+      sortOrder: 0,
+    })),
+  });
+
   // 4. Create Reviews & Comments
   console.log('✍️ Creating Reviews & Reddit-Style Comment Trees...');
   
