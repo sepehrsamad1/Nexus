@@ -40,26 +40,34 @@ export async function fulfillMockOrder(input: unknown) {
     for (const item of items) {
       if (item.type === 'DIGITAL_KEY') {
         const game = await tx.game.findUnique({ where: { id: item.id } });
-        if (!game || game.digitalPrice <= 0) throw new CommerceValidationError('The selected digital game is unavailable.');
+        if (!game || game.digitalPrice <= 0) {
+          throw new CommerceValidationError('The selected digital game is unavailable.');
+        }
 
         const stockKeys = safeJsonParse<string[]>(game.stockKeysJson, []);
         let keysForOrder: string[];
         let remainingKeys: string[];
+
         try {
-          ({ delivered: keysForOrder, remaining: remainingKeys } = consumeDigitalKeys(stockKeys, item.quantity));
+          ({ delivered: keysForOrder, remaining: remainingKeys } =
+            consumeDigitalKeys(stockKeys, item.quantity));
         } catch {
           throw new CommerceValidationError('Insufficient digital-key stock.');
         }
+
         await tx.game.update({
           where: { id: game.id },
           data: { stockKeysJson: JSON.stringify(remainingKeys) },
         });
 
-        for (const key of keysForOrder) deliveredKeys.push({ gameTitle: game.title, key });
+        for (const key of keysForOrder) {
+          deliveredKeys.push({ gameTitle: game.title, key });
+        }
 
         totalAmount += game.digitalPrice * item.quantity;
+
         orderItemsData.push({
-          game: { connect: { id: game.id } },
+          gameId: game.id,
           name: `${game.title} (Digital Key)`,
           category: 'GAME_KEY',
           price: game.digitalPrice,
@@ -67,8 +75,14 @@ export async function fulfillMockOrder(input: unknown) {
         });
       } else {
         const product = await tx.product.findUnique({ where: { id: item.id } });
-        if (!product || product.price < 0) throw new CommerceValidationError('The selected product is unavailable.');
-        if (product.stock < item.quantity) throw new CommerceValidationError('Insufficient physical stock.');
+
+        if (!product || product.price < 0) {
+          throw new CommerceValidationError('The selected product is unavailable.');
+        }
+
+        if (product.stock < item.quantity) {
+          throw new CommerceValidationError('Insufficient physical stock.');
+        }
 
         await tx.product.update({
           where: { id: product.id },
@@ -76,6 +90,7 @@ export async function fulfillMockOrder(input: unknown) {
         });
 
         totalAmount += product.price * item.quantity;
+
         orderItemsData.push({
           product: { connect: { id: product.id } },
           name: product.name,
@@ -102,5 +117,6 @@ export async function fulfillMockOrder(input: unknown) {
   revalidatePath('/profile/orders');
   revalidatePath('/admin');
   revalidatePath('/store');
+
   return { success: true, ...result };
 }

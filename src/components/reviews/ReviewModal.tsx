@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { submitReview } from '@/actions/review';
 import { X, Star, Video } from 'lucide-react';
-import type { Role } from '@/lib/auth';
+import type { Role } from '@/lib/validation';
 
 interface ReviewModalProps {
   gameId: string;
