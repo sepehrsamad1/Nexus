@@ -7,6 +7,7 @@ async function main() {
   
   // Clean existing data
   await prisma.orderItem.deleteMany();
+  await prisma.mediaAsset.deleteMany();
   await prisma.order.deleteMany();
   await prisma.vote.deleteMany();
   await prisma.comment.deleteMany();
@@ -83,7 +84,6 @@ async function main() {
     ['resident-evil-requiem','Resident Evil Requiem','A modern survival-horror entry that combines investigation, resource management, tense combat, and first- or third-person play.','2026-02-26','Capcom','Capcom',['PC','PS5','Xbox Series X/S','Switch 2'],['Horror','Action','Survival Horror'],92,95,96,69.99,3764200],
   ] as const;
 
-  const demoCover = 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=1200';
   const games = await Promise.all(gameCatalog.map(([slug, title, description, releaseDate, developer, publisher, platforms, genres, expertScore, streamerScore, userScore, digitalPrice, steamAppId]) =>
     prisma.game.create({
       data: {
@@ -92,7 +92,18 @@ async function main() {
         description,
         coverImage: steamAppId
           ? `https://cdn.cloudflare.steamstatic.com/steam/apps/${steamAppId}/header.jpg`
-          : demoCover,
+          : ({
+              'demons-souls': 'https://img.youtube.com/vi/JxDhzaZpGOw/maxresdefault.jpg',
+              'bloodborne': 'https://img.youtube.com/vi/1jkK0E5xJfM/maxresdefault.jpg',
+              'uncharted-2': 'https://img.youtube.com/vi/tlkkceDkT88/maxresdefault.jpg',
+            } as Record<string, string>)[slug],
+        bannerImage: steamAppId
+          ? `https://cdn.cloudflare.steamstatic.com/steam/apps/${steamAppId}/library_hero.jpg`
+          : ({
+              'demons-souls': 'https://img.youtube.com/vi/JxDhzaZpGOw/maxresdefault.jpg',
+              'bloodborne': 'https://img.youtube.com/vi/1jkK0E5xJfM/maxresdefault.jpg',
+              'uncharted-2': 'https://img.youtube.com/vi/tlkkceDkT88/maxresdefault.jpg',
+            } as Record<string, string>)[slug],
         releaseDate: new Date(releaseDate),
         developer,
         publisher,
@@ -153,21 +164,24 @@ async function main() {
     })
   ]);
 
-  // 4. Register remote demo media without downloading copyrighted assets into the repository.
-  // Production/demo data can replace these URLs and attribution fields without changing UI code.
+  // Register remote game media references. Nexus stores URLs/attribution metadata only; no copyrighted assets are downloaded.
+  const trailerVideoIds: Record<string, string> = {
+    'demons-souls': 'JxDhzaZpGOw',
+    'bloodborne': '1jkK0E5xJfM',
+    'uncharted-2': 'tlkkceDkT88',
+  };
   await prisma.mediaAsset.createMany({
-    data: games.map((game) => ({
-      entityType: 'GAME',
-      entityId: game.id,
-      kind: 'COVER',
-      url: game.coverImage,
-      altText: `${game.title} cover art`,
-      source: 'Steam header or remote demo URL',
-      sourceUrl: game.coverImage,
-      attribution: game.coverImage.includes('steamstatic.com') ? 'Steam remote media; verify rights before production use' : 'Verify creator attribution before production use',
-      license: game.coverImage.includes('steamstatic.com') ? 'Remote platform-hosted media; rights not transferred to Nexus' : 'Unverified demo source; replace with licensed media for production',
-      sortOrder: 0,
-    })),
+    data: games.flatMap((game) => {
+      const trailerId = trailerVideoIds[game.slug];
+      const source = game.coverImage.includes('steamstatic.com') ? 'Steam remote media' : 'Official/public trailer thumbnail reference';
+      const sourceUrl = trailerId ? `https://www.youtube.com/watch?v=${trailerId}` : game.coverImage;
+      const heroUrl = game.bannerImage || game.coverImage;
+      return [
+        { entityType: 'GAME', entityId: game.id, kind: 'COVER', url: game.coverImage, altText: `${game.title} cover art`, source, sourceUrl, attribution: trailerId ? 'Trailer published by the official/public publisher channel or public trailer source; verify rights before production use' : 'Steam-hosted remote media; verify rights before production use', license: 'Remote platform-hosted media; rights are not transferred to Nexus', sortOrder: 0 },
+        { entityType: 'GAME', entityId: game.id, kind: 'HERO', url: heroUrl, altText: `${game.title} hero artwork`, source, sourceUrl, attribution: trailerId ? 'Public trailer thumbnail reference; verify rights before production use' : 'Steam-hosted remote media; verify rights before production use', license: 'Remote platform-hosted media; rights are not transferred to Nexus', sortOrder: 1 },
+        { entityType: 'GAME', entityId: game.id, kind: 'TRAILER_THUMBNAIL', url: trailerId ? `https://img.youtube.com/vi/${trailerId}/maxresdefault.jpg` : heroUrl, altText: `${game.title} trailer thumbnail`, source: trailerId ? 'YouTube public trailer thumbnail' : 'Steam remote media', sourceUrl, attribution: 'Publicly accessible media reference; verify rights before production use', license: 'Remote platform-hosted media; rights are not transferred to Nexus', sortOrder: 2 },
+      ];
+    }),
   });
 
   // 4. Create Reviews & Comments
@@ -180,7 +194,7 @@ async function main() {
         gameId: game.id,
         authorId: experts[0].id,
         roleAtCreation: 'EXPERT',
-        score: Math.floor(Math.random() * 20) + 75,
+        score: game.expertScore,
         title: `A masterpiece in ${game.genresJson.includes('RPG') ? 'storytelling' : 'gameplay'}.`,
         content: `After spending 80 hours with ${game.title}, it is clear that the developers have pushed the boundaries...`,
         prosJson: JSON.stringify(['Incredible visuals', 'Deep mechanics']),
@@ -195,7 +209,7 @@ async function main() {
         gameId: game.id,
         authorId: streamers[1].id, // Shroud
         roleAtCreation: 'STREAMER',
-        score: Math.floor(Math.random() * 15) + 85,
+        score: game.streamerScore,
         title: `My honest thoughts after 100 hours.`,
         content: `Chat, this game is actually insane. The movement tech is crazy.`,
         videoUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ", // Dummy URL
@@ -246,16 +260,25 @@ async function main() {
           gameId: game.id,
           authorId: regularUsers[i].id,
           roleAtCreation: 'USER',
-          score: Math.floor(Math.random() * 40) + 50,
+          score: game.userScore - (i === 2 ? 2 : 4),
           title: `Pretty good, but has flaws.`,
           content: `I bought this on sale and it's worth it, but full price? Nah.`,
-          upvotes: Math.floor(Math.random() * 50),
+          upvotes: i === 2 ? 18 : 11,
         }
       });
     }
   }
 
-  console.log('✅ Seeding completed successfully!');
+  // Persist deterministic aggregate metadata that matches the seeded review/discussion graph.
+  for (const game of games) {
+    const overallScore = Math.round((game.expertScore * 0.45 + game.streamerScore * 0.30 + game.userScore * 0.25) * 10) / 10;
+    await prisma.game.update({
+      where: { id: game.id },
+      data: { overallScore, reviewCount: 4, discussionCount: 3 },
+    });
+  }
+
+  console.log(`✅ Seeding completed successfully: ${games.length} canonical games.`);
 }
 
 main()
