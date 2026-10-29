@@ -39,7 +39,7 @@ const canonicalSlugs = [
 ];
 
 test('P04 seed contains exactly the 30 canonical game slugs', () => {
-  const catalogMatch = seed.match(/const gameCatalog = \[(.*?)\n  \] as const;/s);
+  const catalogMatch = seed.match(/const gameCatalog = \[([\\s\\S]*?)\n  \] as const;/);
   assert.ok(catalogMatch, 'gameCatalog must be present');
   const body = catalogMatch[1];
   const slugs = [...body.matchAll(/\['([^']+)'\s*,/g)].map(match => match[1]);
