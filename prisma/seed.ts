@@ -8,6 +8,9 @@ async function main() {
   // Clean existing data
   await prisma.orderItem.deleteMany();
   await prisma.mediaAsset.deleteMany();
+  await prisma.creatorFollow.deleteMany();
+  await prisma.creatorPost.deleteMany();
+  await prisma.creatorProfile.deleteMany();
   await prisma.order.deleteMany();
   await prisma.vote.deleteMany();
   await prisma.comment.deleteMany();
@@ -46,6 +49,39 @@ async function main() {
   const experts = [critic1, critic2, critic3, critic4];
   const streamers = [streamer1, streamer2, streamer3, streamer4];
   const regularUsers = users.slice(9);
+
+  // Creator profiles are explicitly demo/editorial personas unless a verified external identity is added later.
+  await prisma.creatorProfile.createMany({
+    data: [
+      { userId: streamer1.id, displayName: 'NinjaPlays', handle: 'ninjaplays-demo', tagline: 'Demo creator profile focused on competitive games.', bio: 'Demo/editorial creator persona used to demonstrate Nexus discovery and community features.', isDemoEditorial: true },
+      { userId: streamer2.id, displayName: 'Shroud', handle: 'shroud-demo', tagline: 'Demo creator profile focused on tactical shooters.', bio: 'Demo/editorial creator persona; not a verified external identity or endorsement.', isDemoEditorial: true },
+      { userId: streamer3.id, displayName: 'Asmongold', handle: 'asmongold-demo', tagline: 'Demo creator profile focused on RPG discussion.', bio: 'Demo/editorial creator persona; not a verified external identity or endorsement.', isDemoEditorial: true },
+      { userId: streamer4.id, displayName: 'Pokimane', handle: 'pokimane-demo', tagline: 'Demo creator profile focused on community discovery.', bio: 'Demo/editorial creator persona; not a verified external identity or endorsement.', isDemoEditorial: true },
+    ],
+  });
+
+  await prisma.creatorFollow.createMany({
+    data: [
+      { followerId: user1.id, followingId: streamer1.id },
+      { followerId: regularUsers[0].id, followingId: streamer1.id },
+      { followerId: regularUsers[1].id, followingId: streamer1.id },
+      { followerId: user1.id, followingId: streamer2.id },
+      { followerId: regularUsers[0].id, followingId: streamer2.id },
+      { followerId: regularUsers[2].id, followingId: streamer2.id },
+      { followerId: regularUsers[1].id, followingId: streamer3.id },
+      { followerId: regularUsers[2].id, followingId: streamer3.id },
+      { followerId: regularUsers[3].id, followingId: streamer4.id },
+    ],
+  });
+
+  await prisma.creatorPost.createMany({
+    data: [
+      { authorId: streamer1.id, title: 'Demo Creator Post: What Makes a Great Competitive Game?', content: 'Seeded demo/editorial post for the Nexus creator-platform prototype. Follower count changes discovery reach, not game scoring.', isDemo: true },
+      { authorId: streamer2.id, title: 'Demo Creator Post: Aim, Teamplay, and Game Feel', content: 'Seeded demo/editorial creator post. This is not a verified statement from the named public persona.', isDemo: true },
+      { authorId: streamer3.id, title: 'Demo Creator Post: RPGs Worth Discussing', content: 'Seeded demo/editorial creator post used to demonstrate creator feeds and profile presentation.', isDemo: true },
+      { authorId: streamer4.id, title: 'Demo Creator Post: Finding Your Next Game', content: 'Seeded demo/editorial creator post for discovery UX testing.', isDemo: true },
+    ],
+  });
 
   // 2. Create the curated 30-game Nexus catalog.
   // Covers use remote Steam header media where available; console-only titles use the existing
