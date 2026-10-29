@@ -40,6 +40,9 @@ model Game {
   expertScore     Float     @default(0)
   streamerScore   Float     @default(0)
   userScore       Float     @default(0)
+  overallScore    Float     @default(0)
+  reviewCount     Int       @default(0)
+  discussionCount Int       @default(0)
   digitalPrice    Float     @default(59.99)
   stockKeysJson   String    @default("[]") // JSON string of String[]
   createdAt       DateTime  @default(now())
