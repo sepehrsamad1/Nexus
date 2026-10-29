@@ -468,3 +468,42 @@ remaining:
   - browser-check creator discovery/profile/follow flows
   - P08
 ```
+
+
+## P08 implementation record
+
+```yaml
+task: P08
+status: implementation_complete_runtime_verification_pending
+branch: audit/foundation-fixes
+completed:
+  - real_game_specific_discussion_feed
+  - hot_and_new_discussion_sorting
+  - game_filter_and_url_state
+  - nested_game_comment_replies
+  - review_thread_parent_integrity_preserved
+  - duplicate_vote_prevention_via_database_constraints
+  - transactional_vote_mutations
+  - deleted_target_vote_rejection
+  - moderation_safe_comment_validation
+  - author_identity_and_timestamp_presentation
+  - discussion_and_reply_counts
+  - homepage_community_activity
+  - game_page_full_discussion_surface
+  - community_loading_and_error_states
+  - safe_seeded_demo_discussion_content
+  - p08_regression_tests_added
+verification:
+  local_typecheck: pending
+  local_tests: pending
+  local_seed: pending
+  local_build: pending
+remaining:
+  - run prisma generate and schema sync/migration locally
+  - run typecheck
+  - run full test suite
+  - run deterministic seed
+  - run production build
+  - browser-check community feed, game filter, nested reply and vote flows
+  - P09
+```
