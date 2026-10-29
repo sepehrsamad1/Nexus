@@ -23,6 +23,10 @@ model User {
   votes               Vote[]
   orders              Order[]
   recommendedProducts Product[] @relation("StreamerRecommendations")
+  creatorProfile      CreatorProfile?
+  creatorPosts        CreatorPost[]
+  followers          CreatorFollow[] @relation("CreatorFollowers")
+  following          CreatorFollow[] @relation("CreatorFollowing")
 }
 
 model Game {
@@ -71,6 +75,45 @@ model Review {
   author         User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments       Comment[]
   votes          Vote[]
+}
+
+model CreatorProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  displayName     String
+  handle          String   @unique
+  tagline         String?
+  bio             String?
+  isDemoEditorial Boolean  @default(true)
+  createdAt       DateTime @default(now())
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CreatorPost {
+  id         String   @id @default(cuid())
+  authorId   String
+  title      String
+  content    String
+  isDemo     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  author     User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([authorId, createdAt])
+}
+
+model CreatorFollow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower    User     @relation("CreatorFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("CreatorFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followingId, createdAt])
 }
 
 model Comment {
