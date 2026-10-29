@@ -46,79 +46,67 @@ async function main() {
   const streamers = [streamer1, streamer2, streamer3, streamer4];
   const regularUsers = users.slice(9);
 
-  // 2. Create Games
-  console.log('🎮 Creating Games...');
-  const games = await Promise.all([
+  // 2. Create the curated 30-game Nexus catalog.
+  // Covers use remote Steam header media where available; console-only titles use the existing
+  // remote demo image until licensed/source-attributed media is supplied by the media pass.
+  console.log('🎮 Creating curated 30-game catalog...');
+  const gameCatalog = [
+    ['demons-souls','Demon\'s Souls','A landmark action RPG remake built around brutal encounters, exploration, and risk-reward combat.','2020-11-12','Bluepoint Games','Sony Interactive Entertainment',['PS5'],['RPG','Action','Souls-like'],89,91,88,69.99,null],
+    ['dark-souls','Dark Souls','An interconnected dark fantasy action RPG where every victory is earned through patience, mastery, and discovery.','2011-09-22','FromSoftware','Bandai Namco Entertainment',['PC','PS3','Xbox 360','Switch'],['RPG','Action','Dark Fantasy'],89,93,91,39.99,570940],
+    ['dark-souls-2','Dark Souls II','A challenging journey through Drangleic with deep build variety, deliberate combat, and a huge world to explore.','2014-03-11','FromSoftware','Bandai Namco Entertainment',['PC','PS3','Xbox 360'],['RPG','Action','Dark Fantasy'],91,90,87,39.99,335300],
+    ['dark-souls-3','Dark Souls III','A faster, refined finale to the Dark Souls trilogy with spectacular bosses and dense world design.','2016-03-24','FromSoftware','Bandai Namco Entertainment',['PC','PS4','Xbox One'],['RPG','Action','Dark Fantasy'],89,94,92,59.99,374320],
+    ['bloodborne','Bloodborne','A gothic action RPG defined by aggressive combat, cosmic horror, and one of gaming\'s most memorable worlds.','2015-03-24','FromSoftware','Sony Interactive Entertainment',['PS4'],['RPG','Action','Horror'],92,96,95,59.99,null],
+    ['sekiro-shadows-die-twice','Sekiro: Shadows Die Twice','A precision-focused action adventure built around parries, posture, stealth, and relentless sword combat.','2019-03-22','FromSoftware','Activision',['PC','PS4','Xbox One'],['Action','Adventure','Souls-like'],90,95,93,59.99,814380],
+    ['elden-ring','Elden Ring','An expansive open-world action RPG combining FromSoftware combat with unprecedented exploration freedom.','2022-02-25','FromSoftware','Bandai Namco Entertainment',['PC','PS5','Xbox Series X/S','PS4','Xbox One'],['RPG','Action','Open World'],96,98,94,59.99,1245620],
+    ['god-of-war','God of War','Kratos begins a new chapter in the Norse realms in a focused, cinematic action adventure.','2018-04-20','Santa Monica Studio','Sony Interactive Entertainment',['PS4','PC'],['Action','Adventure','RPG'],94,94,93,49.99,1593500],
+    ['god-of-war-ragnarok','God of War Ragnarök','A larger Norse saga that expands Kratos and Atreus\' journey with spectacular combat and set pieces.','2022-11-09','Santa Monica Studio','Sony Interactive Entertainment',['PS5','PS4','PC'],['Action','Adventure','RPG'],94,95,94,69.99,2322010],
+    ['uncharted-2','Uncharted 2: Among Thieves','A globe-spanning cinematic adventure combining exploration, climbing, puzzles, and blockbuster action.','2009-10-13','Naughty Dog','Sony Interactive Entertainment',['PS3','PS4'],['Action','Adventure','Third-Person'],96,95,94,39.99,null],
+    ['uncharted-4','Uncharted 4: A Thief\'s End','Nathan Drake\'s final major adventure delivers cinematic spectacle, exploration, and character-driven storytelling.','2016-05-10','Naughty Dog','Sony Interactive Entertainment',['PS4','PC'],['Action','Adventure','Third-Person'],93,94,93,49.99,1659420],
+    ['assassins-creed-ii','Assassin\'s Creed II','A Renaissance-era open-world adventure that introduced Ezio Auditore and a landmark stealth-action sandbox.','2009-11-17','Ubisoft Montreal','Ubisoft',['PC','PS3','Xbox 360'],['Action','Adventure','Open World'],90,91,92,29.99,33230],
+    ['assassins-creed-brotherhood','Assassin\'s Creed Brotherhood','Ezio returns to Rome with expanded stealth, parkour, combat, and an influential brotherhood system.','2010-11-16','Ubisoft Montreal','Ubisoft',['PC','PS3','Xbox 360'],['Action','Adventure','Open World'],89,91,91,29.99,48190],
+    ['assassins-creed-revelations','Assassin\'s Creed Revelations','A reflective finale to Ezio\'s story that blends Constantinople exploration with refined series mechanics.','2011-11-15','Ubisoft Montreal','Ubisoft',['PC','PS3','Xbox 360'],['Action','Adventure','Open World'],80,86,87,29.99,201870],
+    ['skyrim','The Elder Scrolls V: Skyrim','A vast fantasy RPG where players can explore, quest, fight, craft, and build their own legend.','2011-11-11','Bethesda Game Studios','Bethesda Softworks',['PC','PS5','Xbox Series X/S','Switch'],['RPG','Open World','Fantasy'],94,95,94,39.99,489830],
+    ['dota-2','Dota 2','A deep competitive MOBA built around strategy, hero mastery, teamwork, and near-limitless match variety.','2013-07-09','Valve','Valve',['PC'],['MOBA','Strategy','Competitive'],90,95,91,0,570],
+    ['counter-strike-2','Counter-Strike 2','A competitive tactical shooter centered on precision aim, team coordination, economy, and round-to-round adaptation.','2023-09-27','Valve','Valve',['PC'],['FPS','Tactical','Competitive'],82,93,88,0,730],
+    ['devil-may-cry-3','Devil May Cry 3: Special Edition','A stylish action classic famous for demanding combat, expressive combos, and memorable boss fights.','2006-01-24','Capcom','Capcom',['PC','PS2','Switch'],['Action','Character Action','Hack and Slash'],84,92,91,19.99,631510],
+    ['devil-may-cry-5','Devil May Cry 5','A polished character-action showcase with three distinct combat styles and exceptional mechanical depth.','2019-03-08','Capcom','Capcom',['PC','PS5','Xbox Series X/S','PS4','Xbox One'],['Action','Character Action','Hack and Slash'],88,96,94,29.99,601150],
+    ['clair-obscur-expedition-33','Clair Obscur: Expedition 33','A stylish turn-based RPG combining reactive combat, striking art direction, and an emotionally focused expedition.','2025-04-24','Sandfall Interactive','Kepler Interactive',['PC','PS5','Xbox Series X/S'],['RPG','Turn-Based','Adventure'],93,95,94,49.99,1903340],
+    ['red-dead-redemption-2','Red Dead Redemption 2','An enormous western epic blending immersive open-world systems, character writing, and painstaking environmental detail.','2018-10-26','Rockstar Games','Rockstar Games',['PC','PS4','Xbox One'],['Action','Adventure','Open World'],97,96,95,59.99,1174180],
+    ['the-witcher-3','The Witcher 3: Wild Hunt','A massive fantasy RPG driven by meaningful quests, memorable characters, exploration, and monster hunting.','2015-05-19','CD PROJEKT RED','CD PROJEKT RED',['PC','PS5','Xbox Series X/S','Switch'],['RPG','Open World','Fantasy'],93,95,95,39.99,292030],
+    ['baldurs-gate-3','Baldur\'s Gate 3','A sprawling party-based RPG built around freedom of choice, reactive storytelling, and deep turn-based combat.','2023-08-03','Larian Studios','Larian Studios',['PC','PS5','Xbox Series X/S'],['RPG','Turn-Based','Fantasy'],96,97,96,59.99,1086940],
+    ['cyberpunk-2077','Cyberpunk 2077','A story-driven open-world RPG set in Night City, combining character builds, action combat, and branching quests.','2020-12-10','CD PROJEKT RED','CD PROJEKT RED',['PC','PS5','Xbox Series X/S'],['RPG','Action','Sci-Fi'],88,93,91,59.99,1091500],
+    ['hollow-knight','Hollow Knight','A hand-drawn metroidvania built around precise combat, exploration, atmospheric world design, and challenging bosses.','2017-02-24','Team Cherry','Team Cherry',['PC','PS4','Xbox One','Switch'],['Metroidvania','Action','Indie'],91,94,94,14.99,367520],
+    ['resident-evil-4-remake','Resident Evil 4 Remake','A modern survival-horror action classic rebuilt with tense combat, exploration, and cinematic presentation.','2023-03-24','Capcom','Capcom',['PC','PS5','Xbox Series X/S','PS4'],['Horror','Action','Survival Horror'],93,95,94,59.99,2050650],
+    ['black-myth-wukong','Black Myth: Wukong','A visually ambitious action RPG inspired by Journey to the West, featuring demanding combat and spectacular bosses.','2024-08-20','Game Science','Game Science',['PC','PS5','Xbox Series X/S'],['Action','RPG','Mythology'],81,94,91,59.99,2358720],
+    ['monster-hunter-world','Monster Hunter: World','A deep action RPG built around hunting massive monsters, crafting gear, and mastering weapon-specific combat.','2018-01-26','Capcom','Capcom',['PC','PS4','Xbox One'],['Action','RPG','Co-op'],90,94,93,29.99,582010],
+    ['hades','Hades','A fast, replayable roguelike action game where each escape attempt reveals more combat depth and story.','2020-09-17','Supergiant Games','Supergiant Games',['PC','PS5','Xbox Series X/S','Switch'],['Roguelike','Action','Indie'],93,96,95,24.99,1145360],
+    ['resident-evil-requiem','Resident Evil Requiem','A modern survival-horror entry that combines investigation, resource management, tense combat, and first- or third-person play.','2026-02-26','Capcom','Capcom',['PC','PS5','Xbox Series X/S','Switch 2'],['Horror','Action','Survival Horror'],92,95,96,69.99,3764200],
+  ] as const;
+
+  const demoCover = 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=1200';
+  const games = await Promise.all(gameCatalog.map(([slug, title, description, releaseDate, developer, publisher, platforms, genres, expertScore, streamerScore, userScore, digitalPrice, steamAppId]) =>
     prisma.game.create({
       data: {
-        slug: 'cyberpunk-2077',
-        title: 'Cyberpunk 2077: Phantom Liberty',
-        description: 'An open-world, action-adventure RPG set in the dark future of Night City.',
-        coverImage: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=800',
-        releaseDate: new Date('2023-09-26'),
-        developer: 'CD PROJEKT RED',
-        publisher: 'CD PROJEKT RED',
-        platformsJson: JSON.stringify(['PC', 'PS5', 'Xbox Series X/S']),
-        genresJson: JSON.stringify(['RPG', 'Action', 'Sci-Fi']),
-        digitalPrice: 59.99,
-        expertScore: 89,
-        streamerScore: 92,
-        userScore: 86,
-        stockKeysJson: JSON.stringify(['CDPR-1234-ABCD', 'CDPR-5678-EFGH', 'CDPR-9012-IJKL'])
-      }
-    }),
-    prisma.game.create({
-      data: {
-        slug: 'elden-ring',
-        title: 'Elden Ring: Shadow of the Erdtree',
-        description: 'The Golden Order has been broken. Rise, Tarnished.',
-        coverImage: 'https://images.unsplash.com/photo-1605901309584-818e25960b8f?auto=format&fit=crop&q=80&w=800',
-        releaseDate: new Date('2024-06-21'),
-        developer: 'FromSoftware',
-        publisher: 'Bandai Namco',
-        platformsJson: JSON.stringify(['PC', 'PS5', 'Xbox Series X/S']),
-        genresJson: JSON.stringify(['RPG', 'Action', 'Dark Fantasy']),
-        digitalPrice: 39.99,
-        expertScore: 96,
-        streamerScore: 98,
-        userScore: 94,
-      }
-    }),
-    prisma.game.create({
-      data: {
-        slug: 'valorant',
-        title: 'Valorant',
-        description: 'A 5v5 character-based tactical shooter.',
-        coverImage: 'https://images.unsplash.com/photo-1563853155799-a681c3c3a4f6?auto=format&fit=crop&q=80&w=800',
-        releaseDate: new Date('2020-06-02'),
-        developer: 'Riot Games',
-        publisher: 'Riot Games',
-        platformsJson: JSON.stringify(['PC']),
-        genresJson: JSON.stringify(['FPS', 'Tactical', 'Competitive']),
-        digitalPrice: 0.00,
-        expertScore: 80,
-        streamerScore: 88,
-        userScore: 78,
-      }
-    }),
-    prisma.game.create({
-      data: {
-        slug: 'helldivers-2',
-        title: 'Helldivers 2',
-        description: 'Freedom. Peace. Democracy. Your Super Earthborn rights.',
-        coverImage: 'https://images.unsplash.com/photo-1614294149010-950b698f72c0?auto=format&fit=crop&q=80&w=800',
-        releaseDate: new Date('2024-02-08'),
-        developer: 'Arrowhead Studios',
-        publisher: 'PlayStation PC',
-        platformsJson: JSON.stringify(['PC', 'PS5']),
-        genresJson: JSON.stringify(['Shooter', 'Co-op', 'Action']),
-        digitalPrice: 39.99,
-        expertScore: 82,
-        streamerScore: 95,
-        userScore: 90,
-      }
+        slug,
+        title,
+        description,
+        coverImage: steamAppId
+          ? `https://cdn.cloudflare.steamstatic.com/steam/apps/${steamAppId}/header.jpg`
+          : demoCover,
+        releaseDate: new Date(releaseDate),
+        developer,
+        publisher,
+        platformsJson: JSON.stringify(platforms),
+        genresJson: JSON.stringify(genres),
+        digitalPrice,
+        expertScore,
+        streamerScore,
+        userScore,
+        stockKeysJson: JSON.stringify(Array.from({ length: 3 }, (_, index) => `NEXUS-${slug.toUpperCase().replace(/[^A-Z0-9]+/g, '-').slice(0, 18)}-${index + 1}-DEMO`)),
+      },
     })
-  ]);
+  ));
+  const gameBySlug = Object.fromEntries(games.map(game => [game.slug, game]));
 
   // 3. Create Hardware Products
   console.log('🖱️ Creating Gear & Hardware...');
@@ -133,7 +121,7 @@ async function main() {
         price: 159.00,
         stock: 50,
         specsJson: JSON.stringify({ Weight: '60g', Sensor: 'HERO 2', DPI: '32,000' }),
-        relatedGameId: games[2].id, // Valorant
+        relatedGameId: gameBySlug['counter-strike-2'].id, // Counter-Strike 2
         recommendedByStreamerId: streamer2.id // Shroud
       }
     }),
@@ -160,7 +148,7 @@ async function main() {
         price: 299.00,
         stock: 5,
         specsJson: JSON.stringify({ Drivers: '90mm Planar Magnetic', Battery: '80hr', Weight: '490g' }),
-        relatedGameId: games[0].id // Cyberpunk
+        relatedGameId: gameBySlug['cyberpunk-2077'].id // Cyberpunk 2077
       }
     })
   ]);
@@ -174,10 +162,10 @@ async function main() {
       kind: 'COVER',
       url: game.coverImage,
       altText: `${game.title} cover art`,
-      source: 'Remote demo URL',
+      source: 'Steam header or remote demo URL',
       sourceUrl: game.coverImage,
-      attribution: 'Verify creator attribution before production use',
-      license: 'Unverified demo source; replace with licensed media for production',
+      attribution: game.coverImage.includes('steamstatic.com') ? 'Steam remote media; verify rights before production use' : 'Verify creator attribution before production use',
+      license: game.coverImage.includes('steamstatic.com') ? 'Remote platform-hosted media; rights not transferred to Nexus' : 'Unverified demo source; replace with licensed media for production',
       sortOrder: 0,
     })),
   });
