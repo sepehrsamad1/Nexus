@@ -66,7 +66,7 @@ export default async function ReviewThreadPage({ params }: { params: Promise<{ i
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-white text-lg">{review.author.name}</span>
-                    {review.roleAtCreation === 'STREAMER' && <span className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 text-xs font-black border border-purple-500/30 uppercase">Verified Streamer</span>}
+                    {review.roleAtCreation === 'STREAMER' && <span className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 text-xs font-black border border-purple-500/30 uppercase">Demo Creator</span>}
                   </div>
                 </div>
               </div>
