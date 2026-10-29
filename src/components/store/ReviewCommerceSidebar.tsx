@@ -68,7 +68,7 @@ export async function ReviewCommerceSidebar({ gameId, authorId }: ReviewCommerce
                     id={product.id}
                     name={product.name}
                     price={product.price}
-                    image={safeJsonParse<string[]>(product.imagesJson, [])[0] || undefined}
+                    image={safeJsonParse<string[]>(product.imagesJson, [])[0] || '/media-fallback.svg'}
                     type="PHYSICAL_GEAR"
                     category={product.category}
                   />
