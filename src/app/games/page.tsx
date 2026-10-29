@@ -21,14 +21,15 @@ export default async function GamesDirectory({ searchParams }: { searchParams?: 
           </h1>
           <p className="text-zinc-400 mt-2 text-lg">Browse the 30-game Nexus catalog by Expert, Creator, or Player score.</p>
         </div>
-        <div className="flex items-center gap-3 bg-zinc-900 border border-zinc-800 rounded-lg p-2">
+        <form method="get" className="flex items-center gap-3 bg-zinc-900 border border-zinc-800 rounded-lg p-2">
           <Filter className="w-5 h-5 text-zinc-400 ml-2" />
-          <select aria-label="Game sort order" defaultValue={sort === 'streamerScore' ? 'streamer' : sort === 'userScore' ? 'user' : 'expert'} onChange={(event) => { window.location.search = event.target.value === 'expert' ? '' : `?sort=${event.target.value}`; }} className="bg-transparent text-white border-none focus:ring-0 text-sm font-medium pr-8 outline-none">
+          <select name="sort" aria-label="Game sort order" defaultValue={sort === 'streamerScore' ? 'streamer' : sort === 'userScore' ? 'user' : 'expert'} className="bg-transparent text-white border-none focus:ring-0 text-sm font-medium pr-8 outline-none">
             <option value="expert">Sort by: Expert Score</option>
             <option value="streamer">Sort by: Creator Score</option>
             <option value="user">Sort by: User Score</option>
           </select>
-        </div>
+          <button type="submit" className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-indigo-500">Apply</button>
+        </form>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
