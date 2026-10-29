@@ -6,7 +6,19 @@ import { MediaImage } from "@/components/MediaImage";
 import { Gamepad2, MessageSquare, ShoppingBag, ArrowRight } from "lucide-react";
 
 export default async function HomePage() {
-  const topGames = await prisma.game.findMany({ orderBy: { expertScore: 'desc' }, take: 3 });
+  const [topGames, latestDiscussions] = await Promise.all([
+    prisma.game.findMany({ orderBy: { expertScore: 'desc' }, take: 3 }),
+    prisma.comment.findMany({
+      where: { parentId: null, reviewId: null, isDeleted: false },
+      include: {
+        game: { select: { slug: true, title: true } },
+        author: { select: { name: true, role: true } },
+        _count: { select: { replies: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 4,
+    }),
+  ]);
 
   return (
     <main className="flex-1 flex flex-col p-6 pb-20 max-w-7xl mx-auto w-full">
@@ -47,6 +59,34 @@ export default async function HomePage() {
             </Link>
           ))}
         </div>
+      </section>
+
+      <section className="mb-20">
+        <div className="flex items-center justify-between mb-6 border-b border-zinc-800 pb-4">
+          <div>
+            <h2 className="text-2xl font-black flex items-center gap-2 text-white">
+              <MessageSquare className="text-amber-400 w-6 h-6" /> Community Activity
+            </h2>
+            <p className="mt-1 text-sm text-zinc-500">Latest game-specific discussions and replies.</p>
+          </div>
+          <Link href="/community" className="text-sm font-bold text-indigo-400 hover:text-indigo-300">View Community</Link>
+        </div>
+        {latestDiscussions.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {latestDiscussions.map(thread => (
+              <Link key={thread.id} href={`/games/${thread.game!.slug}#community`} className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 hover:border-amber-500/40 transition group">
+                <div className="flex items-center justify-between gap-3 text-xs text-zinc-500">
+                  <span className="font-bold text-zinc-300">{thread.author.name}</span>
+                  <span>{thread._count.replies} replies</span>
+                </div>
+                <h3 className="mt-3 font-black text-white line-clamp-2 group-hover:text-amber-300">{thread.content.split(/\r?\n/)[0]}</h3>
+                <p className="mt-2 text-sm text-zinc-500">{thread.game?.title}</p>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-zinc-800 p-8 text-center text-sm text-zinc-500">No community discussions yet.</div>
+        )}
       </section>
 
       <section className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-4xl mx-auto w-full">
