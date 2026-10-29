@@ -81,7 +81,7 @@ async function main() {
     ['black-myth-wukong','Black Myth: Wukong','A visually ambitious action RPG inspired by Journey to the West, featuring demanding combat and spectacular bosses.','2024-08-20','Game Science','Game Science',['PC','PS5','Xbox Series X/S'],['Action','RPG','Mythology'],81,94,91,59.99,2358720],
     ['monster-hunter-world','Monster Hunter: World','A deep action RPG built around hunting massive monsters, crafting gear, and mastering weapon-specific combat.','2018-01-26','Capcom','Capcom',['PC','PS4','Xbox One'],['Action','RPG','Co-op'],90,94,93,29.99,582010],
     ['hades','Hades','A fast, replayable roguelike action game where each escape attempt reveals more combat depth and story.','2020-09-17','Supergiant Games','Supergiant Games',['PC','PS5','Xbox Series X/S','Switch'],['Roguelike','Action','Indie'],93,96,95,24.99,1145360],
-    ['resident-evil-requiem','Resident Evil Requiem','A modern survival-horror entry that combines investigation, resource management, tense combat, and first- or third-person play.','2026-02-26','Capcom','Capcom',['PC','PS5','Xbox Series X/S','Switch 2'],['Horror','Action','Survival Horror'],92,95,96,69.99,3764200],
+    ['resident-evil-requiem','Resident Evil Requiem','A modern survival-horror entry that combines investigation, resource management, tense combat, and first- or third-person play.','2026-02-27','Capcom','Capcom',['PC','PS5','Xbox Series X/S','Switch 2'],['Horror','Action','Survival Horror'],92,95,96,69.99,3764200],
   ] as const;
 
   const games = await Promise.all(gameCatalog.map(([slug, title, description, releaseDate, developer, publisher, platforms, genres, expertScore, streamerScore, userScore, digitalPrice, steamAppId]) =>
