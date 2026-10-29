@@ -30,6 +30,9 @@ export async function Navbar() {
               <Link href="/community" className="text-sm font-medium text-zinc-400 hover:text-white flex items-center gap-2 transition-colors">
                 <Users className="w-4 h-4" /> Community
               </Link>
+              <Link href="/creators" className="text-sm font-medium text-zinc-400 hover:text-white flex items-center gap-2 transition-colors">
+                <Users className="w-4 h-4" /> Creators
+              </Link>
               <Link href="/store" className="text-sm font-medium text-zinc-400 hover:text-white flex items-center gap-2 transition-colors">
                 <ShoppingBag className="w-4 h-4" /> Gear Store
               </Link>
