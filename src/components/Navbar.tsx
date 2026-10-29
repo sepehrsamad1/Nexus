@@ -37,6 +37,7 @@ export async function Navbar() {
           </div>
 
           <div className="flex items-center gap-4">
+            <Link href="/search" aria-label="Search Nexus" className="sm:hidden p-2 text-zinc-400 hover:text-white"><Search className="w-5 h-5" /></Link>
             <form action="/search" method="get" className="hidden sm:block relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
               <input
