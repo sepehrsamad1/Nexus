@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import { AddToCartButton } from './AddToCartButton';
-import { ShoppingBag, Key, Zap } from 'lucide-react';
+import { Key, Zap } from 'lucide-react';
+import { MediaImage } from '@/components/MediaImage';
 import { safeJsonParse } from '@/lib/utils';
 import Link from 'next/link';
 
@@ -33,7 +34,7 @@ export async function ReviewCommerceSidebar({ gameId, authorId }: ReviewCommerce
           <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs uppercase tracking-wider mb-4 border-b border-zinc-800 pb-2">
             <Key className="w-4 h-4" /> Instant Digital Key
           </div>
-          <img src={game.coverImage} alt={game.title} className="w-full h-32 object-cover rounded-lg mb-4 opacity-80" />
+          <div className="w-full h-32 overflow-hidden rounded-lg mb-4 opacity-80"><MediaImage src={game.coverImage} alt={`${game.title} cover art`} fallbackLabel="Game artwork unavailable" /></div>
           <h3 className="font-bold text-white text-lg mb-1">{game.title}</h3>
           <p className="text-2xl font-mono font-black text-indigo-400 mb-4">${game.digitalPrice.toFixed(2)}</p>
           <AddToCartButton 
@@ -67,7 +68,7 @@ export async function ReviewCommerceSidebar({ gameId, authorId }: ReviewCommerce
                     id={product.id}
                     name={product.name}
                     price={product.price}
-                    image="https://via.placeholder.com/150/18181b/ffffff?text=GEAR"
+                    image={safeJsonParse<string[]>(product.imagesJson, [])[0] || undefined}
                     type="PHYSICAL_GEAR"
                     category={product.category}
                   />
