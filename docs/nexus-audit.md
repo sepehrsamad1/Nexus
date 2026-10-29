@@ -427,3 +427,11 @@ remaining:
   - browser-check games directory and representative game details
   - P05/P06/P07/P11 may proceed in parallel after P04 verification
 ```
+
+### P04 — Game catalog expansion
+- Status: implementation complete; runtime verification pending.
+- Seed now contains exactly the 30 canonical Nexus games, with deterministic metadata and no random review scores.
+- Game aggregate metadata now includes overallScore, reviewCount, and discussionCount; score recalculation keeps these values synchronized.
+- Seed media registration is idempotent and provides COVER/HERO/TRAILER_THUMBNAIL references without downloading copyrighted assets.
+- P04 regression tests added for exact catalog membership, determinism, aggregate metadata, and media coverage.
+- Remaining verification: pull latest branch, run Prisma schema sync/generate, typecheck, tests, seed, and production build; then browser-check the full 30-game directory and representative detail pages.
