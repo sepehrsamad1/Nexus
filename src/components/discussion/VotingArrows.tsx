@@ -37,11 +37,13 @@ export function VotingArrows({
     setNetKarma(nextKarma);
 
     startTransition(async () => {
-      const result = await voteContent(targetId, type, val);
-      if (result?.error) {
+      try {
+        const result = await voteContent(targetId, type, val);
+        if (result?.error) throw new Error(result.error);
+      } catch (error) {
         setUserVote(previousVote);
         setNetKarma(netKarma);
-        setError(result.error);
+        setError(error instanceof Error ? error.message : 'Unable to record vote');
       }
     });
   };
