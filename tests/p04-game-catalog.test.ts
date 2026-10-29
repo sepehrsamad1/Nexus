@@ -42,7 +42,7 @@ test('P04 seed contains exactly the 30 canonical game slugs', () => {
   const catalogMatch = seed.match(/const gameCatalog = \[([\s\S]*?)\n  \] as const;/);
   assert.ok(catalogMatch, 'gameCatalog must be present');
   const body = catalogMatch[1];
-  const slugs = [...body.matchAll(/\['([^']+)'\s*,/g)].map(match => match[1]);
+  const slugs = [...body.matchAll(/^\s*\['([^']+)'\s*,/gm)].map(match => match[1]);
   assert.deepEqual(slugs, canonicalSlugs);
   assert.equal(slugs.length, 30);
   assert.equal(new Set(slugs).size, 30);
