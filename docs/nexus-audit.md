@@ -311,3 +311,32 @@ recommended_next:
   - P04
   - parallel_after_P04: [P05, P06, P07, P11]
 ```
+
+
+## P01 completion record
+
+```yaml
+task: P01
+status: implementation_complete
+branch: audit/foundation-fixes
+completed:
+  - demo_auth_boundary_explicit
+  - demo_role_values_schema_validated
+  - demo_cookie_hardened
+  - admin_role_input_validated
+  - review_input_validated
+  - review_game_existence_checked
+  - comment_input_validated
+  - comment_target_and_parent_integrity_checked
+  - vote_input_validated
+  - safe_server_errors_added
+  - targeted_validation_tests_added
+  - typecheck_and_test_scripts_added
+verification:
+  typecheck: not_run_connector_has_no_runtime_workspace
+  lint: not_run_connector_has_no_runtime_workspace
+  tests: not_run_connector_has_no_runtime_workspace
+remaining:
+  - run_typecheck_lint_tests_in_local_or_ci_environment
+  - P02
+```
