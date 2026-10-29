@@ -167,7 +167,7 @@ async function main() {
   // Register remote game media references. Nexus stores URLs/attribution metadata only; no copyrighted assets are downloaded.
   const trailerVideoIds: Record<string, string> = {
     'demons-souls': 'JxDhzaZpGOw',
-    'bloodborne': '1jkK0E5xJfM',
+    'bloodborne': '1nKW9kTjsps',
     'uncharted-2': 'tlkkceDkT88',
   };
   await prisma.mediaAsset.createMany({
