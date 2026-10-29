@@ -4,105 +4,319 @@ import { getSession } from '@/lib/auth';
 import { MetascoreBadge } from '@/components/MetascoreBadge';
 import { ReviewModal } from '@/components/reviews/ReviewModal';
 import { ReviewCommerceSidebar } from '@/components/store/ReviewCommerceSidebar';
-import { safeJsonParse } from '@/lib/utils';
 import { MediaImage } from '@/components/MediaImage';
-import { PlayCircle, MessageSquare } from 'lucide-react';
+import { safeJsonParse } from '@/lib/utils';
+import {
+  CalendarDays,
+  Gamepad2,
+  MessageSquare,
+  PlayCircle,
+  ShoppingBag,
+  Users,
+  ArrowRight,
+} from 'lucide-react';
 import Link from 'next/link';
+
+const roleMeta = {
+  EXPERT: { label: 'Expert', accent: 'text-emerald-400', badge: 'Expert Review' },
+  STREAMER: { label: 'Creator', accent: 'text-purple-400', badge: 'Creator Review' },
+  USER: { label: 'Player', accent: 'text-sky-400', badge: 'Player Review' },
+} as const;
+
+function formatReleaseDate(date: Date) {
+  return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(date);
+}
+
+function scoreBar(score: number) {
+  return Math.max(0, Math.min(100, score));
+}
 
 export default async function GameDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const session = await getSession();
+
   const game = await prisma.game.findUnique({
     where: { slug },
-    include: { reviews: { include: { author: true }, orderBy: { upvotes: 'desc' } } }
+    include: {
+      reviews: {
+        include: { author: true },
+        orderBy: [{ roleAtCreation: 'asc' }, { upvotes: 'desc' }],
+      },
+    },
   });
 
   if (!game) notFound();
 
-  const media = await prisma.mediaAsset.findMany({
-    where: { entityType: 'GAME', entityId: game.id },
-    orderBy: { sortOrder: 'asc' },
-  });
-  const hero = media.find(asset => asset.kind === 'HERO') || media.find(asset => asset.kind === 'COVER');
-  const gallery = media.filter(asset => asset.kind === 'GALLERY');
-  const trailerThumbnail = media.find(asset => asset.kind === 'TRAILER_THUMBNAIL');
+  const [media, comments, relatedCandidates, relatedProducts] = await Promise.all([
+    prisma.mediaAsset.findMany({
+      where: { entityType: 'GAME', entityId: game.id },
+      orderBy: { sortOrder: 'asc' },
+    }),
+    prisma.comment.findMany({
+      where: { gameId: game.id, isDeleted: false },
+      include: { author: true },
+      orderBy: [{ upvotes: 'desc' }, { createdAt: 'desc' }],
+      take: 4,
+    }),
+    prisma.game.findMany({
+      where: { id: { not: game.id } },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        coverImage: true,
+        expertScore: true,
+        genresJson: true,
+      },
+      take: 12,
+    }),
+    prisma.product.findMany({
+      where: { relatedGameId: game.id },
+      orderBy: { stock: 'desc' },
+      take: 4,
+    }),
+  ]);
 
-  const streamers = game.reviews.filter(r => r.roleAtCreation === 'STREAMER');
+  const platforms = safeJsonParse<string[]>(game.platformsJson, []);
+  const genres = safeJsonParse<string[]>(game.genresJson, []);
+  const hero = media.find(asset => asset.kind === 'HERO') || media.find(asset => asset.kind === 'COVER');
+  const cover = media.find(asset => asset.kind === 'COVER');
+  const gallery = media.filter(asset => asset.kind === 'GALLERY');
+  const trailer = media.find(asset => asset.kind === 'TRAILER_THUMBNAIL');
+
+  const relatedGames = relatedCandidates
+    .map(candidate => {
+      const candidateGenres = safeJsonParse<string[]>(candidate.genresJson, []);
+      const overlap = candidateGenres.filter(genre => genres.includes(genre)).length;
+      return { ...candidate, overlap };
+    })
+    .sort((a, b) => b.overlap - a.overlap || b.expertScore - a.expertScore)
+    .slice(0, 4);
+
+  const fallbackProducts = relatedProducts.length > 0
+    ? relatedProducts
+    : await prisma.product.findMany({ orderBy: { stock: 'desc' }, take: 4 });
+
+  const reviewsByRole = {
+    EXPERT: game.reviews.find(review => review.roleAtCreation === 'EXPERT'),
+    STREAMER: game.reviews.find(review => review.roleAtCreation === 'STREAMER'),
+    USER: game.reviews.find(review => review.roleAtCreation === 'USER'),
+  };
 
   return (
     <main className="min-h-screen pb-20">
-      <div className="relative h-[60vh] min-h-[500px] flex items-end">
-        <MediaImage src={hero?.url || game.coverImage} alt={hero?.altText || `${game.title} hero artwork`} fallbackLabel="Game artwork unavailable" priority className="absolute inset-0" />
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent backdrop-blur-[2px]"></div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 w-full pb-12 flex justify-between items-end">
-          <div className="max-w-3xl">
-            <h1 className="text-5xl sm:text-7xl font-black text-white mb-4 tracking-tight">{game.title}</h1>
-            <div className="flex gap-4 bg-zinc-900/80 backdrop-blur-md border border-zinc-700 p-4 rounded-2xl w-fit mt-6">
-              <MetascoreBadge score={game.expertScore} label="Critics" size="sm" />
-              <div className="w-px bg-zinc-700"></div>
-              <MetascoreBadge score={game.streamerScore} label="Streamers" size="sm" />
+      <section className="relative isolate overflow-hidden border-b border-zinc-800">
+        <div className="absolute inset-0 -z-20 bg-zinc-950" />
+        <MediaImage
+          src={hero?.url || game.bannerImage || game.coverImage}
+          alt={hero?.altText || `${game.title} hero artwork`}
+          fallbackLabel="Hero artwork unavailable"
+          priority
+          className="absolute inset-0 -z-10 opacity-60"
+        />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-zinc-950 via-zinc-950/85 to-zinc-950/45" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-zinc-950 via-transparent to-zinc-950/30" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 lg:py-20">
+          <div className="flex flex-col lg:flex-row gap-8 lg:items-end">
+            <div className="w-40 sm:w-48 shrink-0">
+              <div className="aspect-[2/3] overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 shadow-2xl">
+                <MediaImage
+                  src={cover?.url || game.coverImage}
+                  alt={cover?.altText || `${game.title} cover art`}
+                  fallbackLabel="Cover unavailable"
+                />
+              </div>
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap gap-2 mb-4">
+                {genres.slice(0, 4).map(genre => (
+                  <span key={genre} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold uppercase tracking-wider text-zinc-200">{genre}</span>
+                ))}
+              </div>
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white">{game.title}</h1>
+              <p className="mt-4 max-w-3xl text-base sm:text-lg leading-relaxed text-zinc-300">{game.description}</p>
+
+              <div className="mt-6 flex flex-wrap gap-x-5 gap-y-3 text-sm text-zinc-300">
+                <span className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-indigo-400" /> {formatReleaseDate(game.releaseDate)}</span>
+                <span className="flex items-center gap-2"><Gamepad2 className="h-4 w-4 text-indigo-400" /> {game.developer}</span>
+                <span className="flex items-center gap-2"><ShoppingBag className="h-4 w-4 text-indigo-400" /> {game.publisher}</span>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {platforms.map(platform => (
+                  <span key={platform} className="rounded-md bg-zinc-900/80 px-2.5 py-1 text-xs font-bold text-zinc-300 ring-1 ring-inset ring-zinc-700">{platform}</span>
+                ))}
+              </div>
+            </div>
+
+            <div className="shrink-0 rounded-2xl border border-zinc-700 bg-zinc-950/85 p-5 backdrop-blur-md">
+              <MetascoreBadge score={game.overallScore} label="Nexus Score" size="lg" />
+              <div className="mt-4 grid grid-cols-2 gap-3 text-center text-xs">
+                <div><div className="text-lg font-black text-white">{game.reviewCount}</div><div className="text-zinc-500">Reviews</div></div>
+                <div><div className="text-lg font-black text-white">{game.discussionCount}</div><div className="text-zinc-500">Discussion</div></div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 flex flex-col lg:flex-row gap-8">
-        
-        <div className="flex-1">
-          <div className="flex items-center justify-between mb-8 border-b border-zinc-800 pb-4">
-            <h2 className="text-3xl font-black text-white">Streamer VOD Reviews</h2>
-            {session?.user && <ReviewModal gameId={game.id} gameTitle={game.title} userRole={session.user.role} />}
-          </div>
-
-          {(gallery.length > 0 || trailerThumbnail) && (
-            <section className="mb-16" aria-labelledby="game-media-heading">
-              <div className="flex items-center justify-between mb-6 border-b border-zinc-800 pb-4">
-                <h2 id="game-media-heading" className="text-2xl font-black text-white">Game Media</h2>
-                {trailerThumbnail && <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">Trailer preview</span>}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_20rem] gap-8">
+          <div className="min-w-0 space-y-12">
+            <section aria-labelledby="score-breakdown">
+              <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+                <h2 id="score-breakdown" className="text-2xl font-black text-white">Score Breakdown</h2>
+                <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">Nexus aggregate</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {trailerThumbnail && (
-                  <div className="aspect-video rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900">
-                    <MediaImage src={trailerThumbnail.url} alt={trailerThumbnail.altText || `${game.title} trailer thumbnail`} fallbackLabel="Trailer thumbnail unavailable" />
-                  </div>
-                )}
-                {gallery.map(asset => (
-                  <div key={asset.id} className="aspect-video rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900">
-                    <MediaImage src={asset.url} alt={asset.altText || `${game.title} gallery image`} fallbackLabel="Gallery image unavailable" />
+              <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {[
+                  ['Expert', game.expertScore, 'emerald'],
+                  ['Creator', game.streamerScore, 'purple'],
+                  ['Player', game.userScore, 'sky'],
+                ].map(([label, score, tone]) => (
+                  <div key={label as string} className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-bold text-white">{label as string}</span>
+                      <span className="font-mono text-xl font-black text-white">{score as number}</span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
+                      <div className={`h-full rounded-full ${tone === 'emerald' ? 'bg-emerald-400' : tone === 'purple' ? 'bg-purple-400' : 'bg-sky-400'}`} style={{ width: `${scoreBar(score as number)}%` }} />
+                    </div>
                   </div>
                 ))}
               </div>
             </section>
-          )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
-            {streamers.map(review => (
-              <div key={review.id} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 overflow-hidden rounded-full bg-zinc-800">
-                    <MediaImage src={review.author.image} alt={`${review.author.name} avatar`} fallbackLabel="Avatar unavailable" />
-                  </div>
-                  <div>
-                    <div className="font-bold text-white">{review.author.name}</div>
-                    <div className="text-xs text-purple-400 font-bold uppercase">Verified Streamer</div>
-                  </div>
-                </div>
-                <h3 className="text-lg font-bold text-white mb-2">{review.title}</h3>
-                <MetascoreBadge score={review.score} size="sm" className="mb-4" />
-                <Link href={`/reviews/${review.id}`} className="py-2 w-full bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg text-sm font-bold flex items-center justify-center gap-2">
-                  <MessageSquare className="w-4 h-4 text-amber-400" /> View Thread
-                </Link>
+            <section aria-labelledby="game-media">
+              <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+                <h2 id="game-media" className="text-2xl font-black text-white">Media & Trailer</h2>
+                {trailer?.sourceUrl && (
+                  <a href={trailer.sourceUrl} target="_blank" rel="noreferrer" className="text-xs font-bold text-indigo-400 hover:text-indigo-300">Open source</a>
+                )}
               </div>
-            ))}
+              <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+                {trailer ? (
+                  <a href={trailer.sourceUrl || trailer.url} target="_blank" rel="noreferrer" className="group relative aspect-video overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900">
+                    <MediaImage src={trailer.url} alt={trailer.altText || `${game.title} trailer preview`} fallbackLabel="Trailer preview unavailable" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/25 group-hover:bg-black/40 transition-colors">
+                      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-indigo-600 text-white shadow-xl"><PlayCircle className="h-7 w-7" /></span>
+                    </div>
+                    <span className="absolute bottom-3 left-3 rounded-md bg-black/70 px-2 py-1 text-xs font-bold text-white">Trailer preview</span>
+                  </a>
+                ) : (
+                  <div className="flex aspect-video items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900 p-6 text-center text-sm text-zinc-500">No trailer reference is available for this game yet.</div>
+                )}
+                {(gallery.length > 0 ? gallery : [hero]).filter(Boolean).slice(0, 3).map(asset => (
+                  <div key={asset!.id} className="aspect-video overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900">
+                    <MediaImage src={asset!.url} alt={asset!.altText || `${game.title} gallery artwork`} fallbackLabel="Gallery artwork unavailable" />
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section aria-labelledby="reviews">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-zinc-800 pb-4">
+                <div>
+                  <h2 id="reviews" className="text-2xl font-black text-white">Reviews</h2>
+                  <p className="text-sm text-zinc-500 mt-1">Expert, creator, and player perspectives.</p>
+                </div>
+                {session?.user && <ReviewModal gameId={game.id} gameTitle={game.title} userRole={session.user.role} />}
+              </div>
+              <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+                {(['EXPERT', 'STREAMER', 'USER'] as const).map(role => {
+                  const review = reviewsByRole[role];
+                  const meta = roleMeta[role];
+                  if (!review) {
+                    return <div key={role} className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-950 p-5 text-sm text-zinc-500">No {meta.label.toLowerCase()} review yet.</div>;
+                  }
+                  return (
+                    <article key={review.id} className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 flex flex-col">
+                      <div className="flex items-center justify-between gap-3 mb-4">
+                        <div className="min-w-0">
+                          <span className={`text-[10px] font-black uppercase tracking-widest ${meta.accent}`}>{meta.badge}</span>
+                          <div className="mt-1 truncate font-bold text-white">{review.author.name}</div>
+                        </div>
+                        <MetascoreBadge score={review.score} size="sm" />
+                      </div>
+                      <h3 className="font-bold text-white line-clamp-2">{review.title}</h3>
+                      <p className="mt-3 text-sm leading-relaxed text-zinc-400 line-clamp-4">{review.content}</p>
+                      <Link href={`/reviews/${review.id}`} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-indigo-400 hover:text-indigo-300">Read review <ArrowRight className="h-4 w-4" /></Link>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section aria-labelledby="community">
+              <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+                <div>
+                  <h2 id="community" className="text-2xl font-black text-white">Community Discussion</h2>
+                  <p className="text-sm text-zinc-500 mt-1">{game.discussionCount} comments around this game.</p>
+                </div>
+                <Link href="/community" className="text-sm font-bold text-indigo-400 hover:text-indigo-300">Community <ArrowRight className="inline h-4 w-4" /></Link>
+              </div>
+              <div className="mt-5 space-y-3">
+                {comments.length > 0 ? comments.map(comment => (
+                  <article key={comment.id} className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="font-bold text-white">{comment.author.name}</span>
+                      <span className="text-xs text-zinc-500">{comment.upvotes - comment.downvotes} votes</span>
+                    </div>
+                    <p className="mt-2 text-sm leading-relaxed text-zinc-400 line-clamp-2">{comment.content}</p>
+                  </article>
+                )) : (
+                  <div className="rounded-xl border border-dashed border-zinc-800 p-6 text-center text-sm text-zinc-500">No discussion yet. Be the first to start one.</div>
+                )}
+              </div>
+            </section>
+
+            <section aria-labelledby="related-games">
+              <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+                <h2 id="related-games" className="text-2xl font-black text-white">Related Games</h2>
+              </div>
+              <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {relatedGames.map(related => (
+                  <Link key={related.id} href={`/games/${related.slug}`} className="group overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900">
+                    <div className="aspect-[2/3]"><MediaImage src={related.coverImage} alt={`${related.title} cover art`} fallbackLabel="Cover unavailable" /></div>
+                    <div className="p-3">
+                      <h3 className="line-clamp-2 text-sm font-bold text-white group-hover:text-indigo-400">{related.title}</h3>
+                      <div className="mt-2 text-xs font-bold text-zinc-500">{related.expertScore} Expert</div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
           </div>
+
+          <aside className="space-y-6">
+            <div className="sticky top-24 space-y-6">
+              <ReviewCommerceSidebar gameId={game.id} />
+              <section aria-labelledby="gear" className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <ShoppingBag className="h-4 w-4 text-indigo-400" />
+                  <h2 id="gear" className="font-black text-white">Related Gaming Gear</h2>
+                </div>
+                <div className="space-y-3">
+                  {fallbackProducts.map(product => {
+                    const images = safeJsonParse<string[]>(product.imagesJson, []);
+                    return (
+                      <Link key={product.id} href={`/store/${product.slug}`} className="flex gap-3 rounded-xl border border-zinc-800 bg-zinc-950 p-3 hover:border-indigo-500/50">
+                        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-900">
+                          <MediaImage src={images[0]} alt={`${product.name} product image`} fallbackLabel="Gear image unavailable" />
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="line-clamp-2 text-sm font-bold text-white">{product.name}</h3>
+                          <p className="mt-1 font-mono text-sm text-indigo-400">${product.price.toFixed(2)}</p>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </section>
+            </div>
+          </aside>
         </div>
-
-        {/* Sidebar Store Cross-Sell inserted into Game Detail Page */}
-        <aside className="w-full lg:w-80 shrink-0">
-          <ReviewCommerceSidebar gameId={game.id} />
-        </aside>
-
       </div>
     </main>
   );
