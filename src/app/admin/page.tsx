@@ -19,7 +19,7 @@ export default async function AdminDashboard() {
     prisma.game.findMany({ select: { id: true, title: true, stockKeysJson: true }, orderBy: { title: 'asc' } }),
     prisma.comment.findMany({
       where: { isDeleted: false }, take: 10, orderBy: { createdAt: 'desc' },
-      select: { id: true, content: true, createdAt: true, author: { select: { name: true } }, game: { select: { title: true } } },
+      select: { id: true, content: true, author: { select: { name: true } }, game: { select: { title: true } } },
     }),
     prisma.user.count({ where: { role: 'ADMIN' } }),
   ]);
