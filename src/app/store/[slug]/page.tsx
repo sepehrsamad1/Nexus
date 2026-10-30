@@ -35,7 +35,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             <div className="grid grid-cols-2 gap-4 mt-4" aria-label="Product image gallery">
               {gallery.slice(1).map((image, index) => (
                 <div key={image} className="aspect-[4/3] overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950">
-                  <MediaImage src={image} alt={`${product.name} alternate view ${index + 2}`} />
+                  <MediaImage src={image} alt={`${product.name} alternate view ${index + 2}`} className="bg-white object-contain p-4" />
                 </div>
               ))}
             </div>
