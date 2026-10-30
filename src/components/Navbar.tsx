@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Search, Gamepad2, Users, ShoppingBag, Heart, Home } from 'lucide-react';
+import { Search, Gamepad2, Users, ShoppingBag, Heart, Home, UserRound } from 'lucide-react';
 import { RoleSwitcher } from './RoleSwitcher';
 import { getSession } from '@/lib/auth';
 import { CartIcon } from '@/components/store/CartIcon';
@@ -52,6 +52,7 @@ export async function Navbar() {
             <Link href="/wishlist" aria-label="Wishlist" className="p-2 text-zinc-400 hover:text-rose-300 transition">
               <Heart className="w-5 h-5" />
             </Link>
+            <Link href="/profile" aria-label="Profile" className="p-2 text-zinc-400 hover:text-white transition"><UserRound className="w-5 h-5" /></Link>
             <CartIcon />
             <div className="h-6 w-px bg-zinc-800 mx-1" />
             <RoleSwitcher currentRole={user?.role} />
