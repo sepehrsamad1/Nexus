@@ -3,6 +3,7 @@ import 'server-only';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { safeJsonParse } from '@/lib/utils';
+import { paymentSimulationSchema } from '@/lib/validation';
 import { consumeDigitalKeys, normalizeCheckoutItems as normalizeCommerceItems } from '@/lib/commerce';
 import type { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
@@ -30,7 +31,18 @@ export async function fulfillMockOrder(input: unknown) {
   const session = await getSession();
   if (!session?.user) throw new CommerceValidationError('Unauthorized');
 
-  const items = normalizeCheckoutItems(input);
+  const payload = input as { items?: unknown; payment?: unknown };
+  let items;
+  try {
+    items = normalizeCheckoutItems({ items: payload?.items });
+  } catch {
+    throw new CommerceValidationError('Invalid cart contents.');
+  }
+  const payment = paymentSimulationSchema.safeParse(payload?.payment ?? { outcome: 'SUCCESS' });
+  if (!payment.success) throw new CommerceValidationError('Invalid simulated payment selection.');
+  if (payment.data.outcome === 'FAILURE') {
+    throw new CommerceValidationError('Simulated payment failure. No order was created and no inventory was changed.');
+  }
 
   const result = await runCommerceTransaction(async (tx) => {
     const orderItemsData: Prisma.OrderItemCreateWithoutOrderInput[] = [];
