@@ -65,10 +65,15 @@ export default async function GameDetailPage({ params }: { params: Promise<{ slu
 
   if (!game) notFound();
 
-  const [media, discussionComments, relatedCandidates, relatedProducts] = await Promise.all([
+  const [media, externalReferences, discussionComments, relatedCandidates, relatedProducts] = await Promise.all([
     prisma.mediaAsset.findMany({
       where: { entityType: 'GAME', entityId: game.id },
       orderBy: { sortOrder: 'asc' },
+    }),
+    prisma.externalReference.findMany({
+      where: { entityType: 'GAME', entityId: game.id },
+      orderBy: [{ kind: 'asc' }, { retrievedAt: 'desc' }],
+      take: 12,
     }),
     prisma.comment.findMany({
       where: { gameId: game.id, reviewId: null, isDeleted: false },
@@ -273,6 +278,43 @@ export default async function GameDetailPage({ params }: { params: Promise<{ slu
                 ))}
               </div>
             </section>
+
+            {externalReferences.length > 0 && (
+              <section aria-labelledby="external-references">
+                <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+                  <div>
+                    <h2 id="external-references" className="text-2xl font-black text-white">Public Source References</h2>
+                    <p className="mt-1 text-sm text-zinc-500">Optional external references with source attribution and retrieval metadata.</p>
+                  </div>
+                  <span className="rounded-full border border-zinc-700 bg-zinc-950 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-zinc-500">Read-only</span>
+                </div>
+                <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {externalReferences.map(reference => (
+                    <article key={reference.id} className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full bg-zinc-950 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-zinc-400">
+                          {reference.kind === 'OFFICIAL_TRAILER' ? 'Trailer' : 'Community'}
+                        </span>
+                        {reference.isDemoEditorial && (
+                          <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-amber-300">Nexus Demo</span>
+                        )}
+                      </div>
+                      <h3 className="mt-3 font-bold text-white">{reference.title}</h3>
+                      {reference.excerpt && <p className="mt-2 text-sm leading-relaxed text-zinc-400">{reference.excerpt}</p>}
+                      <div className="mt-4 space-y-1 text-xs text-zinc-500">
+                        <div>Source: <span className="text-zinc-300">{reference.source}</span></div>
+                        {reference.authorDisplayName && <div>External author: <span className="text-zinc-300">{reference.authorDisplayName}</span> (not a Nexus account)</div>}
+                        <div>Retrieved: <span className="text-zinc-300">{reference.retrievedAt.toISOString()}</span></div>
+                      </div>
+                      <p className="mt-3 text-xs leading-relaxed text-zinc-500">{reference.attribution}</p>
+                      <a href={reference.canonicalUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex text-sm font-bold text-indigo-400 hover:text-indigo-300">
+                        Open original source <ArrowRight className="ml-1 h-4 w-4" />
+                      </a>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            )}
 
             <section aria-labelledby="reviews">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-zinc-800 pb-4">
