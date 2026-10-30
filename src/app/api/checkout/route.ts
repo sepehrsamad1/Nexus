@@ -5,7 +5,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const result = await fulfillMockOrder(body);
-    return NextResponse.json({ simulated: true, orderId: result.orderId, total: result.totalAmount });
+    return NextResponse.json({ simulated: true, orderId: result.orderId, orderNumber: `NEXUS-${result.orderId.slice(-8).toUpperCase()}`, total: result.totalAmount, deliveredKeys: result.deliveredKeys });
   } catch (error) {
     if (error instanceof CommerceValidationError) {
       const status = error.message === 'Unauthorized' ? 401 : 400;
