@@ -28,8 +28,10 @@ test('P11 seed contains exactly the 15 roadmap products', () => {
 
 test('P11 products have multiple image references and no placeholder-image copy', () => {
   const seed = read('prisma/seed.ts');
-  assert.ok(seed.includes('/api/product-image/'));
-  assert.ok(seed.includes('imageSourceJson: JSON.stringify([product.sourceUrl, product.sourceUrl])'));
+  assert.ok(seed.includes('const productImageUrls: Record<string, string[]>'));
+  assert.ok(seed.includes('wooting-80he-plus'));
+  assert.ok(seed.includes('https://wooting-website.ams3.cdn.digitaloceanspaces.com/'));
+  assert.ok(seed.includes('imageSourceJson: JSON.stringify(productImageUrls[product.slug] ?? [product.sourceUrl])'));
   assert.ok(!seed.toLowerCase().includes('product image'));
   assert.ok(!seed.includes('placeholder.com'));
 });
