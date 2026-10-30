@@ -38,7 +38,7 @@ export default async function StorefrontPage() {
 
       <section className="mb-14">
         <div className="flex items-end justify-between gap-4 mb-6">
-          <div><p className="text-indigo-400 text-xs font-black uppercase tracking-widest">P11 curated catalog</p><h2 className="text-2xl sm:text-3xl font-black text-white mt-1">Gaming gear</h2></div>
+          <div><p className="text-indigo-400 text-xs font-black uppercase tracking-widest">Curated catalog</p><h2 className="text-2xl sm:text-3xl font-black text-white mt-1">Gaming gear</h2></div>
           <div className="hidden sm:flex items-center gap-2 text-xs text-zinc-500"><Boxes className="w-4 h-4" /> {products.length} products</div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
