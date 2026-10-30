@@ -80,6 +80,6 @@ test('P08 seed contains safe game-level demo discussions and P09 derives discuss
   assert.match(seed, /not a real user quote/);
   assert.match(seed, /const gameDiscussion = await prisma\.comment\.create/);
   assert.match(seed, /gameId: game\.id/);
-  assert.match(scoring, /discussionCount: await prisma\\.comment\\.count/);
+  assert.match(scoring, /discussionCount: await prisma\.comment\.count/);
   assert.match(scoring, /reviewId: null/);
 });
