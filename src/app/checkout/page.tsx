@@ -4,6 +4,7 @@ import { useCart } from '@/store/useCart';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { CreditCard, Package, Key, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { MediaImage } from '@/components/MediaImage';
 import Link from 'next/link';
 
 export default function CheckoutPage() {
@@ -92,7 +93,7 @@ export default function CheckoutPage() {
               {items.map(item => (
                 <div key={item.id} className="flex justify-between items-center bg-zinc-950 p-4 rounded-xl border border-zinc-800">
                   <div className="flex items-center gap-4">
-                    <img src={item.image} className="w-12 h-12 rounded object-cover" alt="" />
+                    <div className="w-12 h-12 rounded overflow-hidden bg-zinc-900 shrink-0"><MediaImage src={item.image} alt="" fallbackLabel="Product image unavailable" className="object-cover" /></div>
                     <div>
                       <div className="font-bold text-zinc-200">{item.name}</div>
                       <div className="text-xs text-zinc-500 flex items-center gap-1">
@@ -119,7 +120,7 @@ export default function CheckoutPage() {
             <p className="text-xs text-amber-300 mb-5">Prototype simulation only — no real payment is processed and no card details are stored.</p>
             
             <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-xl p-4 mb-8 text-sm text-indigo-300">
-              <strong>Local Development Mode Active:</strong> Clicking the button below will instantly fulfill the order using a simulated transaction and distribute keys from the database.
+              <strong>Demo payment environment:</strong> The button below runs the simulated transaction and, on success, fulfills the demo order using the seeded catalog.
             </div>
 
             <div className="space-y-4 mb-8"><div className="h-12 bg-zinc-950 border border-zinc-800 rounded-lg flex items-center px-4 text-zinc-500">Demo card field — not collected or stored</div><div className="grid grid-cols-2 gap-4"><div className="h-12 bg-zinc-950 border border-zinc-800 rounded-lg px-4 flex items-center text-zinc-500">Demo expiry</div><div className="h-12 bg-zinc-950 border border-zinc-800 rounded-lg px-4 flex items-center text-zinc-500">Demo CVC</div></div><label className="block text-sm text-zinc-400">Simulation result<select value={paymentOutcome} onChange={e => setPaymentOutcome(e.target.value as "SUCCESS" | "FAILURE")} className="mt-2 w-full h-12 bg-zinc-950 border border-zinc-800 rounded-lg px-4 text-zinc-200"><option value="SUCCESS">Successful payment</option><option value="FAILURE">Simulate payment failure</option></select></label></div>
