@@ -110,9 +110,11 @@ export default async function CreatorProfilePage({ params }: { params: Promise<{
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
               Follower count is a discovery signal only. It does not increase, decrease, or directly modify any game score.
             </p>
-            <div className="mt-5 rounded-xl bg-zinc-950 p-4">
-              <div className="text-2xl font-black text-white">{creator._count.followers}</div>
-              <div className="text-xs font-bold uppercase tracking-wider text-zinc-600">Followers / reach signal</div>
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <div className="rounded-xl bg-zinc-950 p-4"><div className="text-2xl font-black text-white">{creator._count.followers}</div><div className="text-xs font-bold uppercase tracking-wider text-zinc-600">Followers</div></div>
+              <div className="rounded-xl bg-zinc-950 p-4"><div className="text-2xl font-black text-white">{creator._count.following}</div><div className="text-xs font-bold uppercase tracking-wider text-zinc-600">Following</div></div>
+              <div className="rounded-xl bg-zinc-950 p-4"><div className="text-2xl font-black text-white">{creator._count.reviews + creator._count.comments}</div><div className="text-xs font-bold uppercase tracking-wider text-zinc-600">Participation</div></div>
+              <div className="rounded-xl bg-zinc-950 p-4"><div className="text-2xl font-black text-white">{creator._count.creatorPosts}</div><div className="text-xs font-bold uppercase tracking-wider text-zinc-600">Posts</div></div>
             </div>
           </aside>
         </div>
