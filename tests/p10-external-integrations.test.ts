@@ -41,7 +41,7 @@ test('P10 seed provides clearly labeled fallback records', () => {
   const seed = read('prisma/seed.ts');
   assert.match(seed, /Nexus Editorial Demo/);
   assert.match(seed, /isDemoEditorial: true/);
-  assert.match(seed, /Replace with a verified official publisher\/developer trailer/);
+  assert.match(seed, /replace with a verified official publisher\/developer trailer/i);
 });
 
 test('P10 has a dedicated cache-aware sync entrypoint', () => {
