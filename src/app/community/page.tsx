@@ -131,7 +131,11 @@ export default async function CommunityFrontPage({
       </div>
 
       <div className="mt-5 space-y-4">
-        {orderedRoots.map(thread => (
+        {orderedRoots.map(thread => {
+          const game = thread.game;
+          if (!game) return null;
+
+          return (
           <article key={thread.id} className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4 sm:p-5">
             <div className="flex gap-4">
               <VotingArrows
@@ -147,7 +151,7 @@ export default async function CommunityFrontPage({
                   <span>•</span>
                   <time dateTime={thread.createdAt.toISOString()}>{thread.createdAt.toLocaleString()}</time>
                   <span>•</span>
-                  <Link href={`/games/${thread.game.slug}`} className="font-bold text-indigo-400 hover:text-indigo-300">{thread.game.title}</Link>
+                  <Link href={`/games/${game.slug}`} className="font-bold text-indigo-400 hover:text-indigo-300">{game.title}</Link>
                   {thread.author.role === 'STREAMER' && <span className="rounded bg-purple-500/15 px-1.5 py-0.5 text-purple-300">Creator</span>}
                   {thread.author.role === 'EXPERT' && <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-emerald-300">Expert</span>}
                 </div>
@@ -162,17 +166,18 @@ export default async function CommunityFrontPage({
                   {thread.review ? (
                     <Link href={`/reviews/${thread.review.id}`} className="text-indigo-400 hover:text-indigo-300">Review thread</Link>
                   ) : (
-                    <Link href={`/games/${thread.game.slug}#community`} className="text-indigo-400 hover:text-indigo-300">Game discussion</Link>
+                    <Link href={`/games/${game.slug}#community`} className="text-indigo-400 hover:text-indigo-300">Game discussion</Link>
                   )}
                   <span>{thread.upvotes - thread.downvotes} net votes</span>
                 </div>
               </div>
               <div className="hidden sm:block shrink-0 pt-1">
-                <MetascoreBadge score={thread.game.expertScore} size="sm" />
+                <MetascoreBadge score={game.expertScore} size="sm" />
               </div>
             </div>
           </article>
-        ))}
+          );
+        })}
       </div>
 
       {orderedRoots.length === 0 && (
