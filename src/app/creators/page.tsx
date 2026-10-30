@@ -60,7 +60,7 @@ export default async function CreatorsPage() {
                     className="h-14 w-14 rounded-full border border-zinc-700 bg-zinc-950 object-cover"
                   />
                   <div className="min-w-0 flex-1">
-                    <Link href={'/creators/' + creator.id} className="font-black text-white hover:text-indigo-400">
+                    <Link href={'/creators/' + creator.creatorProfile!.handle} className="font-black text-white hover:text-indigo-400">
                       {creator.creatorProfile!.displayName}
                     </Link>
                     <p className="text-xs text-zinc-500">@{creator.creatorProfile!.handle}</p>
@@ -79,7 +79,7 @@ export default async function CreatorsPage() {
                 </div>
                 {creator.creatorProfile!.isDemoEditorial && (
                   <p className="mt-4 border-t border-zinc-800 pt-3 text-[11px] font-bold uppercase tracking-wider text-zinc-600">
-                    Demo / Editorial Creator
+                    Demo / Editorial Creator — not verified public figure
                   </p>
                 )}
               </article>
