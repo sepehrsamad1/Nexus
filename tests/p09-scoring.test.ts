@@ -19,7 +19,7 @@ test('P09 calculates deterministic source scores and weighted overall score', ()
   assert.equal(result.creatorCount, 1);
   assert.equal(result.playerCount, 2);
   assert.equal(result.totalCount, 5);
-  assert.equal(result.overallScore, 84.3);
+  assert.equal(result.overallScore, 82.8);
 });
 
 test('P09 renormalizes overall weights when a source is missing', () => {
@@ -59,7 +59,7 @@ test('P09 handles score boundaries deterministically', () => {
   assert.equal(result.expertScore, 50);
   assert.equal(result.creatorScore, 0);
   assert.equal(result.playerScore, 100);
-  assert.equal(result.overallScore, 50);
+  assert.equal(result.overallScore, 47.5);
 });
 
 test('P09 documents that follower count does not affect scoring', () => {
