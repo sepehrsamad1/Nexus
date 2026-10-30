@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Minus, Plus, ShoppingCart, Trash2, ArrowRight, Package, Key } from 'lucide-react';
 import { useCart } from '@/store/useCart';
+import { MediaImage } from '@/components/MediaImage';
 import { useEffect, useState } from 'react';
 
 export default function CartPage() {
@@ -10,7 +11,7 @@ export default function CartPage() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  if (!mounted) return null;
+  if (!mounted) return <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10 min-h-screen" aria-busy="true" aria-label="Loading cart"><div className="h-10 w-48 rounded-lg bg-zinc-900 animate-pulse" /><div className="mt-8 grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8"><div className="space-y-4">{[1,2].map(item => <div key={item} className="h-28 rounded-2xl bg-zinc-900 animate-pulse" />)}</div><div className="h-56 rounded-2xl bg-zinc-900 animate-pulse" /></div></main>;
 
   return (
     <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10 min-h-screen">
@@ -34,7 +35,7 @@ export default function CartPage() {
           <section className="space-y-4">
             {items.map(item => (
               <article key={item.type + ':' + item.id} className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4 sm:p-5 flex gap-4">
-                <img src={item.image} alt="" className="w-24 h-24 sm:w-32 sm:h-24 rounded-xl object-contain bg-zinc-950 p-2" />
+                <div className="w-24 h-24 sm:w-32 sm:h-24 rounded-xl overflow-hidden bg-zinc-950 shrink-0"><MediaImage src={item.image} alt="" fallbackLabel="Product image unavailable" className="object-contain p-2" /></div>
                 <div className="min-w-0 flex-1">
                   <Link href={item.type === 'PHYSICAL_GEAR' ? '/store/' + item.id : '/store'} className="font-black text-white hover:text-indigo-300 line-clamp-2">{item.name}</Link>
                   <div className="text-xs text-zinc-500 mt-2 flex items-center gap-1">
