@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { ProfileSavedSummary } from '@/components/profile/ProfileSavedSummary';
 import { UserRound, Star, MessageSquare, Users, ShoppingBag } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 export default async function ProfilePage() {
   const session = await getSession();
@@ -24,6 +25,14 @@ export default async function ProfilePage() {
 
   const roleLabel = user.role === 'ADMIN' ? 'Admin' : user.role === 'EXPERT' ? 'Expert' : user.role === 'STREAMER' ? 'Creator' : 'Player';
 
+  const profileStats: Array<{ label: string; value: number; Icon: LucideIcon }> = [
+    { label: 'Followers', value: user._count.followers, Icon: Users },
+    { label: 'Following', value: user._count.following, Icon: Users },
+    { label: 'Reviews', value: user._count.reviews, Icon: Star },
+    { label: 'Comments', value: user._count.comments, Icon: MessageSquare },
+    { label: 'Orders', value: user._count.orders, Icon: ShoppingBag },
+  ];
+
   return (
     <main className="min-h-screen bg-zinc-950 px-4 py-10 sm:px-6">
       <div className="mx-auto max-w-5xl">
@@ -43,13 +52,7 @@ export default async function ProfilePage() {
           </div>
 
           <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-5">
-            {[
-              ['Followers', user._count.followers, Users],
-              ['Following', user._count.following, Users],
-              ['Reviews', user._count.reviews, Star],
-              ['Comments', user._count.comments, MessageSquare],
-              ['Orders', user._count.orders, ShoppingBag],
-            ].map(([label, value, Icon]) => (
+            {profileStats.map(({ label, value, Icon }) => (
               <div key={String(label)} className="rounded-2xl bg-zinc-950 p-4">
                 <Icon className="h-4 w-4 text-zinc-500" />
                 <div className="mt-2 text-2xl font-black text-white">{value}</div>
