@@ -271,6 +271,26 @@ async function main() {
     },
   ];
 
+  // Real product photography for the prototype catalog. URLs are public image assets from manufacturer or retailer product pages.
+  // The Nexus SVG endpoint remains available as a resilient fallback if a remote image is unavailable.
+  const productImageUrls: Record<string, string[]> = {
+    'wooting-80he-plus': ['https://wooting-website.ams3.cdn.digitaloceanspaces.com/products/keyboards/80HE-plus/prebuilt-images/whats-new/whats-new.webp'],
+    'logitech-g-pro-x-superlight-2': ['https://www.maxgaming.fi/bilder/artiklar/28010.jpg?m=1692971556'],
+    'razer-viper-v4-pro': ['https://dl.razerzone.com/src2/20779/20779-02-en-v1.png'],
+    'razer-blackshark-v3-pro': ['https://assets3.razerzone.com/JkD-ZQuVh5kXV3bvmyyEw9aWqxs=/1920x1280/https%3A%2F%2Fmedias-p1.phoenix.razer.com%2Fsys-master-phoenix-images-container%2Fh3c%2Fh54%2F9941151088670%2Fblackshark-v3-pro-black-500x500.png'],
+    'steelseries-arctis-nova-elite': ['https://images.ctfassets.net/w5r1fvmogo3f/4B9AXPPltuC3ERCvCHCAja/b73cd357e54dc34900821c5b256ebe88/arctis_nova_elite_sage_gold_pdp_img_buy_01.png?fit=scale&fm=webp&q=90&w=1200'],
+    'artisan-ninja-fx-zero': ['https://inputgear.de/cdn/shop/files/artisan-mousepad-fx-zero-soft-black-9859608_2048x.jpg?v=1782077480'],
+    'zowie-xl2566k': ['https://pisces.bbystatic.com/image2/BestBuy_US/images/products/4ab1f359-638d-4cec-9622-8b7111da793e.jpg'],
+    'lg-ultragear-oled-27gs95qe': ['https://www.lg.com/content/dam/channel/wcms/cl/monitores/gaming/27gs95qe-b/gallery/ultragear-27gs95qe-galley-01-2010.jpg'],
+    'secretlab-titan-evo': ['https://m.media-amazon.com/images/I/51DPqHRZiAL.jpg'],
+    'elgato-wave-3': ['https://www.markertek.com/productImage/alternate-1/hi-res/EGO-WAVE-3-B.JPG'],
+    'elgato-facecam-mk2': ['https://shopping.c.yimg.jp/lib/softbank-selection/0840006669227_r0.jpg'],
+    'wd-black-sn850x-2tb': ['https://www.scan.co.uk/images/products/xlarge/3448882-xl-a.jpg'],
+    'amd-radeon-rx-9070-xt': ['https://cdn.lesnumeriques.com/optim/product/75/75984/f359048f-radeon-rx-9070-xt_png__1200_900__overflow.jpg'],
+    'nvidia-geforce-rtx-5070-ti': ['https://notebookspec.com/storage/pc-vga/2086-1.png'],
+    'playstation-dualsense-edge': ['https://store.sony.com.sg/cdn/shop/products/CFI-ZCP1GDualsenseEdge_1200x.png?v=1754993838'],
+  };
+
   const products = await Promise.all(gearCatalog.map((product) => prisma.product.create({
     data: {
       slug: product.slug,
@@ -285,11 +305,8 @@ async function main() {
       priceSource: product.priceSource,
       priceCheckedAt,
       sourceUrl: product.sourceUrl,
-      imagesJson: JSON.stringify([
-        `/api/product-image/${product.slug}?view=front`,
-        `/api/product-image/${product.slug}?view=detail`,
-      ]),
-      imageSourceJson: JSON.stringify([product.sourceUrl, product.sourceUrl]),
+      imagesJson: JSON.stringify(productImageUrls[product.slug] ?? [`/api/product-image/${product.slug}?view=front`]),
+      imageSourceJson: JSON.stringify(productImageUrls[product.slug] ?? [product.sourceUrl]),
       specsJson: JSON.stringify(product.specs),
       ...('relatedGameSlug' in product && product.relatedGameSlug ? { relatedGameId: gameBySlug[product.relatedGameSlug].id } : {}),
     },
