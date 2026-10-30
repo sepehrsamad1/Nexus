@@ -53,7 +53,7 @@ test('P04 seed is deterministic and idempotent for media', () => {
   assert.match(seed, /await prisma\.mediaAsset\.deleteMany\(\)/);
   assert.match(seed, /overallScore/);
   assert.match(seed, /reviewCount: 4/);
-  assert.match(seed, /discussionCount: 3/);
+  assert.match(seed, /discussionCount: 2/);
 });
 
 test('Game stores overall and aggregate discussion metadata', () => {
