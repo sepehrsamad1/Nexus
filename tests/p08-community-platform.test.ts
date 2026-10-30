@@ -76,10 +76,10 @@ test('P08 community UI has explicit loading and recoverable error states', () =>
 test('P08 seed contains safe game-level demo discussions and P09 derives discussion counts from comments', () => {
   const seed = read('prisma/seed.ts');
   const scoring = read('src/lib/scoring.ts');
-  assert.match(seed, /game-level demo discussion/);
+  assert.match(seed, /This is explicitly seeded demo content, not a real user quote/);
   assert.match(seed, /not a real user quote/);
-  assert.match(seed, /const gameDiscussion = await prisma\\.comment\\.create/);
-  assert.match(seed, /gameId: game\\.id/);
+  assert.match(seed, /const gameDiscussion = await prisma\.comment\.create/);
+  assert.match(seed, /gameId: game\.id/);
   assert.match(scoring, /discussionCount: await prisma\\.comment\\.count/);
   assert.match(scoring, /reviewId: null/);
 });
