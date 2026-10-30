@@ -29,7 +29,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_.95fr] gap-10 lg:gap-14">
         <section>
           <div className="aspect-[4/3] rounded-3xl overflow-hidden border border-zinc-800 bg-zinc-950">
-            <MediaImage src={gallery[0] ?? null} alt={product.name} fallbackLabel={product.name} />
+            <MediaImage src={gallery[0] ?? null} alt={product.name} fallbackLabel={product.name} className="bg-white object-contain p-6" />
           </div>
           {gallery.length > 1 && (
             <div className="grid grid-cols-2 gap-4 mt-4" aria-label="Product image gallery">
