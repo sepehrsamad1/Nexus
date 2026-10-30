@@ -43,7 +43,10 @@ export default function WishlistPage() {
                 <div className="flex items-center justify-between gap-3 mt-5">
                   <span className="font-black text-white">{'$' + item.price.toFixed(2)}</span>
                   <div className="flex gap-2">
-                    {item.type === "GAME" ? <Link href={item.href} className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold">View game</Link> : <button onClick={() => addItem({ id: item.id, name: item.name, price: item.price, image: item.image, type: item.type, category: item.category })} className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold"><ShoppingCart className="w-4 h-4" /> Cart</button>}
+                    {item.type === "GAME" ? <Link href={item.href} className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold">View game</Link> : <button onClick={() => {
+                      if (item.type === 'GAME') return;
+                      addItem({ id: item.id, name: item.name, price: item.price, image: item.image, type: item.type, category: item.category });
+                    }} className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold"><ShoppingCart className="w-4 h-4" /> Cart</button>}
                     <button aria-label={'Remove ' + item.name + ' from wishlist'} onClick={() => removeItem(item.id, item.type)} className="p-2 rounded-lg border border-zinc-700 text-rose-400 hover:border-rose-500/40"><Trash2 className="w-4 h-4" /></button>
                   </div>
                 </div>
