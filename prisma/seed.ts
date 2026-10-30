@@ -157,50 +157,143 @@ async function main() {
   ));
   const gameBySlug = Object.fromEntries(games.map(game => [game.slug, game]));
 
-  // 3. Create Hardware Products
-  console.log('🖱️ Creating Gear & Hardware...');
-  const gear = await Promise.all([
-    prisma.product.create({
-      data: {
-        slug: 'logitech-g-pro-x-superlight',
-        name: 'G PRO X SUPERLIGHT 2',
-        description: 'Fast, precise, and highly reliable wireless gaming mouse.',
-        category: 'MOUSE',
-        brand: 'Logitech',
-        price: 159.00,
-        stock: 50,
-        specsJson: JSON.stringify({ Weight: '60g', Sensor: 'HERO 2', DPI: '32,000' }),
-        relatedGameId: gameBySlug['counter-strike-2'].id, // Counter-Strike 2
-        recommendedByStreamerId: streamer2.id // Shroud
-      }
-    }),
-    prisma.product.create({
-      data: {
-        slug: 'wooting-60he',
-        name: 'Wooting 60HE+',
-        description: 'Analog mechanical keyboard for ultimate rapid trigger control.',
-        category: 'KEYBOARD',
-        brand: 'Wooting',
-        price: 175.00,
-        stock: 12,
-        specsJson: JSON.stringify({ Switches: 'Lekker (Magnetic)', Size: '60%', Polling: '1000Hz' }),
-        recommendedByStreamerId: streamer1.id
-      }
-    }),
-    prisma.product.create({
-      data: {
-        slug: 'audeze-maxwell',
-        name: 'Audeze Maxwell',
-        description: 'Planar magnetic wireless gaming headset.',
-        category: 'HEADSET',
-        brand: 'Audeze',
-        price: 299.00,
-        stock: 5,
-        specsJson: JSON.stringify({ Drivers: '90mm Planar Magnetic', Battery: '80hr', Weight: '490g' }),
-        relatedGameId: gameBySlug['cyberpunk-2077'].id // Cyberpunk 2077
-      }
-    })
-  ]);
+  // 3. Create the exact 15-product P11 curated Nexus gear catalog.
+  // Prices are either verified current-market references or clearly documented prototype placeholders.
+  // Inventory and product ratings are demo catalog data; they are not live retailer inventory or user reviews.
+  console.log('🛒 Creating curated 15-product gear catalog...');
+  const priceCheckedAt = new Date('2026-10-30T00:00:00.000Z');
+  const gearCatalog = [
+    {
+      slug: 'wooting-80he-plus', name: 'Wooting 80HE+', brand: 'Wooting', category: 'KEYBOARD',
+      description: 'Premium Hall Effect TKL keyboard built around adjustable actuation, Rapid Trigger, analog input and true 8 kHz polling.',
+      price: 199.99, stock: 8, rating: 4.8, reviewCount: 4641,
+      specs: { Layout: '80% / TKL', Switches: 'Lekker Tikken Medium', 'Polling Rate': '8 kHz', 'Actuation': '0.1–4.0 mm', Connectivity: 'USB-C' },
+      sourceUrl: 'https://wooting.io/wooting-80he-plus', priceSource: 'Verified vendor reference: USD 199.99 ABS prebuilt; prototype stock is simulated.',
+    },
+    {
+      slug: 'logitech-g-pro-x-superlight-2', name: 'G PRO X SUPERLIGHT 2', brand: 'Logitech G', category: 'MOUSE',
+      description: 'Lightweight competitive wireless mouse focused on low latency, precise tracking and long battery life.',
+      price: 159.99, stock: 24, rating: 4.8, reviewCount: 1563,
+      specs: { Weight: '60 g', Sensor: 'HERO 2', 'Max DPI': '44,000', 'Polling Rate': 'Up to 8 kHz', Battery: 'Up to 95 hours' },
+      sourceUrl: 'https://www.logitechg.com/en-us/shop/p/pro-x2-superlight-wireless-mouse.910-006636', priceSource: 'Verified current Logitech/retailer reference: USD 159.99.',
+      relatedGameSlug: 'counter-strike-2',
+    },
+    {
+      slug: 'razer-viper-v4-pro', name: 'Viper V4 Pro', brand: 'Razer', category: 'MOUSE',
+      description: 'Ultra-light symmetrical wireless esports mouse designed around high-speed tracking and competitive control.',
+      price: 159.99, stock: 18, rating: 0, reviewCount: 0,
+      specs: { Weight: '49 g', Sensor: 'Focus Pro 50K', 'Polling Rate': 'Up to 8 kHz', Battery: 'Up to 180 hours', Connectivity: '2.4 GHz / USB' },
+      sourceUrl: 'https://www.razer.com/gaming-mice/razer-viper-v4-pro', priceSource: 'Verified current retailer reference: USD 159.99; market rating unavailable in retrieved source.',
+    },
+    {
+      slug: 'razer-blackshark-v3-pro', name: 'BlackShark V3 Pro', brand: 'Razer', category: 'HEADSET',
+      description: 'Wireless ANC esports headset with low-latency connectivity, a detachable microphone and competitive-focused audio.',
+      price: 249.99, stock: 10, rating: 4.5, reviewCount: 10,
+      specs: { Connectivity: '2.4 GHz / Bluetooth / USB', 'Noise Cancellation': 'ANC', Microphone: 'Full-band wireless mic', 'Audio Focus': 'Esports / spatial audio' },
+      sourceUrl: 'https://www.razer.com/gaming-headsets/razer-blackshark-v3-pro', priceSource: 'Verified current retailer reference: USD 249.99.',
+    },
+    {
+      slug: 'steelseries-arctis-nova-elite', name: 'Arctis Nova Elite', brand: 'SteelSeries', category: 'HEADSET',
+      description: 'Premium multi-platform wireless headset focused on high-resolution audio, flexible connectivity and luxury build quality.',
+      price: 599.99, stock: 6, rating: 0, reviewCount: 0,
+      specs: { Audio: '96 kHz / 24-bit wireless', Connectivity: '2.4 GHz + Bluetooth LE Audio', Construction: 'Carbon-fiber reinforced', Platforms: 'PC / console / Bluetooth' },
+      sourceUrl: 'https://steelseries.com/gaming-headsets/arctis-nova-elite', priceSource: 'Verified current retailer reference: USD 599.99; market rating unavailable in retrieved source.',
+    },
+    {
+      slug: 'artisan-ninja-fx-zero', name: 'Ninja FX Zero', brand: 'ARTISAN', category: 'MOUSEPAD',
+      description: 'Premium Japanese control mousepad tuned for consistent glide, precise stopping and competitive mouse control.',
+      price: 69.99, stock: 14, rating: 0, reviewCount: 0,
+      specs: { Surface: 'Woven control cloth', Size: 'Large', Base: 'Soft non-slip foam', Origin: 'Japan', Use: 'Competitive FPS / general gaming' },
+      sourceUrl: 'https://artisan-jp.com/nj/', priceSource: 'Current-market prototype placeholder: USD 69.99; verify variant and size before live commerce.',
+    },
+    {
+      slug: 'zowie-xl2566k', name: 'XL2566K', brand: 'ZOWIE', category: 'MONITOR',
+      description: 'Competitive 24.5-inch esports monitor designed for high-refresh motion clarity and tournament-focused FPS play.',
+      price: 599.99, stock: 5, rating: 0, reviewCount: 0,
+      specs: { Size: '24.5 inch', Resolution: '1920×1080', 'Refresh Rate': '360 Hz', Panel: 'TN', Feature: 'DyAc+ motion clarity' },
+      sourceUrl: 'https://zowie.benq.com/en-us/monitor/xl2566k.html', priceSource: 'Current-market prototype placeholder: USD 599.99; verify live retailer pricing before production use.',
+    },
+    {
+      slug: 'lg-ultragear-oled-27gs95qe', name: 'UltraGear OLED 27GS95QE', brand: 'LG', category: 'MONITOR',
+      description: '27-inch QHD OLED gaming monitor combining deep contrast, 240 Hz refresh and fast response for premium PC gaming.',
+      price: 899.99, stock: 5, rating: 0, reviewCount: 0,
+      specs: { Size: '27 inch', Resolution: '2560×1440', 'Refresh Rate': '240 Hz', Panel: 'OLED', Response: '0.03 ms GtG' },
+      sourceUrl: 'https://www.lg.com/us/monitors/lg-27gs95qe-b-gaming-monitor', priceSource: 'Verified current retailer reference: USD 899.99.',
+    },
+    {
+      slug: 'secretlab-titan-evo', name: 'TITAN Evo', brand: 'Secretlab', category: 'CHAIR',
+      description: 'Premium ergonomic gaming chair designed for long sessions with adjustable lumbar support and a full recline range.',
+      price: 549.00, stock: 7, rating: 0, reviewCount: 0,
+      specs: { Upholstery: 'Neo Hybrid Leatherette / SoftWeave options', Lumbar: '4-way L-ADAPT', Recline: '165°', Frame: 'Full-length steel', Base: 'XL PU casters' },
+      sourceUrl: 'https://secretlab.co/products/titan-evo', priceSource: 'Current-market prototype placeholder: USD 549.00; configuration affects final price.',
+    },
+    {
+      slug: 'elgato-wave-3', name: 'Wave:3', brand: 'Elgato', category: 'MICROPHONE',
+      description: 'USB condenser microphone built for streaming, voice chat and creator workflows with onboard anti-clipping protection.',
+      price: 149.99, stock: 12, rating: 0, reviewCount: 0,
+      specs: { Type: 'USB condenser', Pattern: 'Cardioid', Resolution: '24-bit / 96 kHz', Feature: 'Clipguard', Connection: 'USB-C' },
+      sourceUrl: 'https://www.elgato.com/us/en/p/wave-3', priceSource: 'Current-market prototype placeholder: USD 149.99; verify current retailer pricing before live commerce.',
+    },
+    {
+      slug: 'elgato-facecam-mk2', name: 'Facecam MK.2', brand: 'Elgato', category: 'WEBCAM',
+      description: 'Full HD creator webcam with 60 fps capture, HDR support and software controls designed for streaming and calls.',
+      price: 139.99, stock: 11, rating: 4.3, reviewCount: 7,
+      specs: { Resolution: '1080p', 'Frame Rate': 'Up to 60 fps', HDR: 'Yes', Lens: 'Fixed focus', Connection: 'USB-C' },
+      sourceUrl: 'https://www.elgato.com/us/en/p/facecam-mk2', priceSource: 'Verified current retailer reference: USD 139.99.',
+    },
+    {
+      slug: 'wd-black-sn850x-2tb', name: 'WD_BLACK SN850X 2TB', brand: 'WD_BLACK', category: 'SSD',
+      description: 'PCIe Gen4 NVMe gaming SSD designed for fast load times, high sustained throughput and a large game library.',
+      price: 149.99, stock: 16, rating: 4.8, reviewCount: 1284,
+      specs: { Capacity: '2 TB', Interface: 'PCIe Gen4 x4 NVMe', Form: 'M.2 2280', 'Sequential Read': 'Up to 7,300 MB/s', Feature: 'Game Mode 2.0' },
+      sourceUrl: 'https://www.westerndigital.com/products/internal-drives/wd-black-sn850x-nvme-ssd', priceSource: 'Current-market prototype placeholder: USD 149.99; retrieved retailer pricing varied substantially.',
+    },
+    {
+      slug: 'amd-radeon-rx-9070-xt', name: 'Radeon RX 9070 XT', brand: 'AMD', category: 'GPU',
+      description: 'High-end/value-focused Radeon GPU aimed at high-refresh 1440p and capable 4K gaming.',
+      price: 599.99, stock: 4, rating: 0, reviewCount: 0,
+      specs: { Architecture: 'RDNA 4', Memory: '16 GB GDDR6', Interface: 'PCIe 5.0', Target: '1440p / 4K gaming', Feature: 'Ray tracing + FSR' },
+      sourceUrl: 'https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9070-xt.html', priceSource: 'Current-market prototype placeholder: USD 599.99; verify board-partner pricing before live commerce.',
+    },
+    {
+      slug: 'nvidia-geforce-rtx-5070-ti', name: 'GeForce RTX 5070 Ti', brand: 'NVIDIA', category: 'GPU',
+      description: 'High-end GeForce GPU for demanding 1440p and 4K gaming with modern ray tracing and DLSS features.',
+      price: 749.99, stock: 4, rating: 0, reviewCount: 0,
+      specs: { Architecture: 'Blackwell', Memory: '16 GB GDDR7', Interface: 'PCIe 5.0', Feature: 'DLSS / Frame Generation', Target: '1440p / 4K gaming' },
+      sourceUrl: 'https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5070-ti/', priceSource: 'Current-market prototype placeholder: USD 749.99; verify board-partner pricing before live commerce.',
+    },
+    {
+      slug: 'playstation-dualsense-edge', name: 'DualSense Edge', brand: 'PlayStation', category: 'CONTROLLER',
+      description: 'Premium PS5 controller with remappable controls, adjustable triggers, replaceable stick modules and custom profiles.',
+      price: 199.99, stock: 9, rating: 4.5, reviewCount: 2360,
+      specs: { Platform: 'PS5 / PC', Controls: 'Remappable', 'Stick Caps': 'Interchangeable', Triggers: 'Adjustable', Profiles: 'Customizable' },
+      sourceUrl: 'https://www.playstation.com/en-us/accessories/dualsense-edge-wireless-controller/', priceSource: 'Verified current retailer reference: USD 199.99.',
+    },
+  ];
+
+  const products = await Promise.all(gearCatalog.map((product) => prisma.product.create({
+    data: {
+      slug: product.slug,
+      name: product.name,
+      description: product.description,
+      category: product.category,
+      brand: product.brand,
+      price: product.price,
+      stock: product.stock,
+      rating: product.rating,
+      reviewCount: product.reviewCount,
+      priceSource: product.priceSource,
+      priceCheckedAt,
+      sourceUrl: product.sourceUrl,
+      imagesJson: JSON.stringify([
+        `/api/product-image/${product.slug}?view=front`,
+        `/api/product-image/${product.slug}?view=detail`,
+      ]),
+      imageSourceJson: JSON.stringify([product.sourceUrl, product.sourceUrl]),
+      specsJson: JSON.stringify(product.specs),
+      ...(product.relatedGameSlug ? { relatedGameId: gameBySlug[product.relatedGameSlug].id } : {}),
+    },
+  })));
 
   // Register remote game media references. Nexus stores URLs/attribution metadata only; no copyrighted assets are downloaded.
   const trailerVideoIds: Record<string, string> = {
