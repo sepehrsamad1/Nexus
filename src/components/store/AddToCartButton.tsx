@@ -13,27 +13,26 @@ interface AddToCartButtonProps {
   category?: string;
   className?: string;
   fullWidth?: boolean;
+  disabled?: boolean;
 }
 
-export function AddToCartButton({ id, name, price, image, type, category, className, fullWidth }: AddToCartButtonProps) {
+export function AddToCartButton({ id, name, price, image, type, category, className, fullWidth, disabled }: AddToCartButtonProps) {
   const addItem = useCart(state => state.addItem);
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
-    addItem({ id, name, price, image, type, category });
+    if (!disabled) addItem({ id, name, price, image, type, category });
   };
 
   return (
-    <button 
-      onClick={handleAdd}
+    <button type="button" onClick={handleAdd} disabled={disabled} aria-disabled={disabled}
       className={cn(
-        "flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold transition-colors text-sm",
-        fullWidth ? "w-full" : "",
-        className
-      )}
-    >
+        'flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold transition-colors text-sm disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500',
+        fullWidth ? 'w-full' : '',
+        className,
+      )}>
       <ShoppingCart className="w-4 h-4" />
-      <span>${price.toFixed(2)} - Add to Cart</span>
+      <span>{disabled ? 'Out of Stock' : '$' + price.toFixed(2) + ' - Add to Cart'}</span>
     </button>
   );
 }
