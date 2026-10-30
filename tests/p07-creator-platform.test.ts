@@ -32,9 +32,9 @@ test('P07 follower count affects creator discovery ordering only', () => {
 test('P07 follower count is not part of the numeric game score calculation', () => {
   const scoring = fs.readFileSync('src/lib/scoring.ts', 'utf8');
   assert.doesNotMatch(scoring, /followerCount|CreatorFollow|creatorFollow/);
-  assert.match(scoring, /expertScore \* 0\.45/);
-  assert.match(scoring, /streamerScore \* 0\.30/);
-  assert.match(scoring, /userScore \* 0\.25/);
+  assert.match(scoring, /expert:\s*0\.45/);
+  assert.match(scoring, /creator:\s*0\.30/);
+  assert.match(scoring, /player:\s*0\.25/);
 });
 
 test('P07 creator data is clearly marked as demo/editorial when identity is unverified', () => {
