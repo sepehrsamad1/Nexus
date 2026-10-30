@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { ProfileSavedSummary } from '@/components/profile/ProfileSavedSummary';
+import { MediaImage } from '@/components/MediaImage';
 import { UserRound, Star, MessageSquare, Users, ShoppingBag } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -38,7 +39,7 @@ export default async function ProfilePage() {
       <div className="mx-auto max-w-5xl">
         <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6 sm:p-8">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-            <img src={user.image || '/media-fallback.svg'} alt="" className="h-24 w-24 rounded-2xl border border-zinc-700 bg-zinc-950 object-cover" />
+            <div className="h-24 w-24 overflow-hidden rounded-2xl border border-zinc-700 bg-zinc-950"><MediaImage src={user.image || '/media-fallback.svg'} alt="" fallbackLabel="Profile image unavailable" className="object-cover" /></div>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <UserRound className="h-5 w-5 text-indigo-400" />
