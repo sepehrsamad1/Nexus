@@ -6,7 +6,7 @@ export interface WishlistItem {
   name: string;
   price: number;
   image: string;
-  type: 'PHYSICAL_GEAR' | 'DIGITAL_KEY';
+  type: 'PHYSICAL_GEAR' | 'DIGITAL_KEY' | 'GAME';
   category?: string;
   href: string;
 }
