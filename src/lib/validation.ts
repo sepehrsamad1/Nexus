@@ -58,3 +58,7 @@ export const checkoutItemSchema = z.object({
 export const checkoutPayloadSchema = z.object({
   items: z.array(checkoutItemSchema).min(1).max(100),
 }).strict();
+
+export const paymentSimulationSchema = z.object({
+  outcome: z.enum(['SUCCESS', 'FAILURE']),
+}).strict();
