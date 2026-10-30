@@ -50,5 +50,5 @@ test('P11 store UI renders rating, stock, gallery and price provenance', () => {
   assert.ok(detail.includes('Price reference'));
   assert.ok(detail.includes('Manufacturer reference'));
   assert.ok(!store.toLowerCase().includes('product image'));
-  assert.ok(!detail.toLowerCase().includes('product image'));
+  assert.ok(!detail.toLowerCase().includes('placeholder.com'));
 });
