@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nexus — University Live Demo Control Center</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#09090b;color:#f4f4f5}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#172033 0,#09090b 42%);min-height:100vh}
+main{width:min(1120px,92%);margin:auto;padding:48px 0 72px}.eyebrow{color:#22d3ee;font-weight:800;letter-spacing:.22em;text-transform:uppercase;font-size:12px}
+h1{font-size:clamp(38px,7vw,72px);line-height:.95;margin:12px 0}.lead{color:#a1a1aa;max-width:760px;font-size:17px;line-height:1.7}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:30px}.card{border:1px solid #27272a;background:#111113;border-radius:20px;padding:22px;box-shadow:0 16px 50px #0005}
+.card h2{margin:0 0 8px}.card p{color:#a1a1aa;line-height:1.6}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px}
+a{display:inline-block;text-decoration:none;color:#fff;border:1px solid #3f3f46;background:#18181b;padding:10px 13px;border-radius:10px;font-weight:700;font-size:13px}
+a:hover,a:focus{border-color:#22d3ee;background:#0e2430;outline:none}.primary{background:#0891b2;border-color:#0891b2}.primary:hover{background:#0e7490}
+.steps{counter-reset:step;display:grid;gap:10px;margin-top:14px}.step{counter-increment:step;padding:14px 16px;border:1px solid #27272a;border-radius:12px;background:#0f0f11;color:#d4d4d8}.step:before{content:counter(step);display:inline-grid;place-items:center;width:25px;height:25px;margin-right:9px;border-radius:50%;background:#164e63;color:#67e8f9;font-weight:900}
+.note{margin-top:28px;padding:18px;border-radius:15px;border:1px solid #713f12;background:#211506;color:#fde68a}
+footer{margin-top:45px;color:#71717a;font-size:12px}
+</style>
+</head>
+<body>
+<main>
+<div class="eyebrow">Nexus · University Live Demo</div>
+<h1>Live Demo<br>Control Center</h1>
+<p class="lead">This is the presentation launcher for the real local Nexus application. The buttons below open real Nexus routes; they do not simulate the UI.</p>
+
+<div class="actions">
+<a class="primary" href="/demo-login" target="_blank">Open Demo Sign-In</a>
+<a href="/" target="_blank">Open Nexus</a>
+</div>
+
+<div class="grid">
+<section class="card"><h2>Browser 1 · Admin</h2><p>Use one browser window for the platform administrator.</p>
+<div class="steps">
+<div class="step">Open Demo Sign-In → Platform Admin</div>
+<div class="step">Open Admin Dashboard</div>
+<div class="step">Show role controls and moderation</div>
+<div class="step">Show inventory and demo maintenance</div>
+</div>
+<div class="actions"><a href="/demo-login" target="_blank">Sign in</a><a href="/admin" target="_blank">Admin</a></div></section>
+
+<section class="card"><h2>Browser 2 · User</h2><p>Use another browser or private window for the normal player.</p>
+<div class="steps">
+<div class="step">Open Demo Sign-In → Regular User</div>
+<div class="step">Browse a game</div>
+<div class="step">Review, comment and vote</div>
+<div class="step">Wishlist → cart → simulated checkout</div>
+</div>
+<div class="actions"><a href="/demo-login" target="_blank">Sign in</a><a href="/games" target="_blank">Games</a><a href="/community" target="_blank">Community</a></div></section>
+
+<section class="card"><h2>Discovery & Community</h2><p>Show that Nexus is more than a static game catalog.</p>
+<div class="actions"><a href="/games" target="_blank">Game Directory</a><a href="/search" target="_blank">Search</a><a href="/creators" target="_blank">Creators</a><a href="/community" target="_blank">Community</a></div></section>
+
+<section class="card"><h2>Commerce</h2><p>Demonstrate both digital game keys and physical gaming gear.</p>
+<div class="actions"><a href="/store" target="_blank">Store</a><a href="/wishlist" target="_blank">Wishlist</a><a href="/cart" target="_blank">Cart</a><a href="/checkout" target="_blank">Checkout</a></div></section>
+</div>
+
+<section class="card" style="margin-top:16px">
+<h2>Recommended 10-minute presentation flow</h2>
+<div class="steps">
+<div class="step">Start with the Nexus homepage and explain the four pillars: discovery, scoring, community and commerce.</div>
+<div class="step">Use Browser 1 as Admin and show real RBAC-protected administration.</div>
+<div class="step">Use Browser 2 as User and create a review/comment or vote.</div>
+<div class="step">Switch back to Admin and demonstrate moderation / role management.</div>
+<div class="step">Return to User and show creator discovery, wishlist, cart and simulated checkout.</div>
+<div class="step">Finish by opening the project documentation and showing the AI prompt-driven development process.</div>
+</div>
+</section>
+
+<div class="note"><strong>Important:</strong> Nexus authentication, payment and external integrations are prototype/demo implementations. Present them honestly as such. The goal is to demonstrate a functioning university-scale system and the AI-assisted engineering process, not production deployment.</div>
+
+<footer>Nexus — local presentation control center</footer>
+</main>
+</body>
+</html>
