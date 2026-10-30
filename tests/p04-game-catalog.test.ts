@@ -51,9 +51,10 @@ test('P04 seed contains exactly the 30 canonical game slugs', () => {
 test('P04 seed is deterministic and idempotent for media', () => {
   assert.equal(seed.includes('Math.random'), false);
   assert.match(seed, /await prisma\.mediaAsset\.deleteMany\(\)/);
-  assert.match(seed, /overallScore/);
-  assert.match(seed, /reviewCount: 4/);
-  assert.match(seed, /discussionCount:\s*await prisma\.comment\.count\(\{ where: \{ gameId: game\.id, reviewId: null, isDeleted: false \} \}\)/);
+  assert.match(seed, /recalculateGameScores/);
+  const scoring = fs.readFileSync('src/lib/scoring.ts', 'utf8');
+  assert.match(scoring, /reviewCount: breakdown\.totalCount/);
+  assert.match(scoring, /discussionCount: await prisma\.comment\.count/);
 });
 
 test('Game stores overall and aggregate discussion metadata', () => {
