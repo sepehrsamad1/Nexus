@@ -3,7 +3,7 @@
 import { moderateComment } from '@/actions/admin';
 import { useState, useTransition } from 'react';
 
-type ModerationComment = { id: string; content: string; author: { name: string }; game: { title: string } | null; createdAt: Date };
+type ModerationComment = { id: string; content: string; author: { name: string }; game: { title: string } | null };
 
 export function ModerationList({ comments }: { comments: ModerationComment[] }) {
   const [items, setItems] = useState(comments);
