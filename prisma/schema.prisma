@@ -64,8 +64,8 @@ model Review {
   score          Int
   title          String
   content        String
-  prosJson       String    @default("[]")
-  consJson       String    @default("[]")
+  prosJson        String    @default("[]")
+  consJson        String    @default("[]")
   videoUrl       String?
   upvotes        Int       @default(0)
   downvotes      Int       @default(0)
@@ -109,8 +109,8 @@ model CreatorFollow {
   followingId String
   createdAt   DateTime @default(now())
 
-  follower    User     @relation("CreatorFollowing", fields: [followerId], references: [id], onDelete: Cascade)
-  following   User     @relation("CreatorFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+  follower    User      @relation("CreatorFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User      @relation("CreatorFollowers", fields: [followingId], references: [id], onDelete: Cascade)
 
   @@unique([followerId, followingId])
   @@index([followingId, createdAt])
@@ -145,7 +145,7 @@ model Vote {
   reviewId  String?
   commentId String?
   value     Int
-  createdAt DateTime @default(now())
+  createdAt  DateTime @default(now())
 
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   review    Review?   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
@@ -153,4 +153,68 @@ model Vote {
 
   @@unique([userId, reviewId])
   @@unique([userId, commentId])
+}
+
+model MediaAsset {
+  id           String   @id @default(cuid())
+  entityType   String
+  entityId     String
+  kind         String
+  url          String
+  altText      String
+  source       String?
+  sourceUrl    String?
+  attribution  String?
+  license      String?
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  @@index([entityType, entityId, kind, sortOrder])
+}
+
+model Product {
+  id                      String      @id @default(cuid())
+  slug                    String      @unique
+  name                    String
+  description             String
+  category                String
+  brand                   String
+  price                   Float
+  stock                   Int         @default(25)
+  imagesJson              String      @default("[]")
+  specsJson               String      @default("{}")
+  relatedGameId           String?
+  recommendedByStreamerId String?
+  createdAt               DateTime    @default(now())
+
+  relatedGame           Game?       @relation("GameRelatedProducts", fields: [relatedGameId], references: [id], onDelete: SetNull)
+  recommendedByStreamer User?      @relation("StreamerRecommendations", fields: [recommendedByStreamerId], references: [id], onDelete: SetNull)
+  orderItems            OrderItem[]
+}
+
+model Order {
+  id                String      @id @default(cuid())
+  userId            String
+  status             String      @default("PAID")
+  totalAmount       Float
+  stripeSessionId   String?
+  deliveredKeysJson String      @default("[]")
+  createdAt         DateTime    @default(now())
+
+  user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items OrderItem[]
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  productId String?
+  gameId    String?
+  name      String
+  category  String
+  price     Float
+  quantity  Int      @default(1)
+
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
 }
