@@ -291,7 +291,7 @@ async function main() {
       ]),
       imageSourceJson: JSON.stringify([product.sourceUrl, product.sourceUrl]),
       specsJson: JSON.stringify(product.specs),
-      ...(product.relatedGameSlug ? { relatedGameId: gameBySlug[product.relatedGameSlug].id } : {}),
+      ...('relatedGameSlug' in product && product.relatedGameSlug ? { relatedGameId: gameBySlug[product.relatedGameSlug].id } : {}),
     },
   })));
 
