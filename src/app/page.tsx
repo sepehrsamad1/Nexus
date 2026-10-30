@@ -153,7 +153,7 @@ export default async function HomePage() {
           <div>
             <div className="flex items-end justify-between mb-5">
               <div>
-                <p className="text-xs font-black uppercase tracking-widest text-sky-400">Community</p>
+                <p className="text-xs font-black uppercase tracking-widest text-sky-400">Community Activity</p>
                 <h2 className="mt-1 text-2xl font-black text-white">What players are discussing</h2>
               </div>
               <Link href="/community" className="text-sm font-bold text-indigo-400 hover:text-indigo-300">View all</Link>
