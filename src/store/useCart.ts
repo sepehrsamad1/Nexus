@@ -4,7 +4,7 @@ import { persist } from 'zustand/middleware';
 export type CartItemType = 'DIGITAL_KEY' | 'PHYSICAL_GEAR';
 
 export interface CartItem {
-  id: string; // Unique ID (could be gameId or productId)
+  id: string;
   name: string;
   price: number;
   image: string;
@@ -18,11 +18,14 @@ interface CartState {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   addItem: (item: Omit<CartItem, 'quantity'>) => void;
-  removeItem: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
+  removeItem: (id: string, type?: CartItemType) => void;
+  updateQuantity: (id: string, quantity: number, type?: CartItemType) => void;
   clearCart: () => void;
   getTotal: () => number;
 }
+
+const identity = (item: Pick<CartItem, 'id' | 'type'>) => item.type + ':' + item.id;
+const MAX_CLIENT_QUANTITY = 99;
 
 export const useCart = create<CartState>()(
   persist(
@@ -32,31 +35,31 @@ export const useCart = create<CartState>()(
       setIsOpen: (isOpen) => set({ isOpen }),
       addItem: (item) => {
         set((state) => {
-          const existing = state.items.find((i) => i.id === item.id);
+          const existing = state.items.find(i => identity(i) === identity(item));
           if (existing) {
-            // Digital keys usually just 1 per account, but let's allow multiple for gifting, or restrict physical
+            const nextQuantity = Math.min(existing.quantity + 1, MAX_CLIENT_QUANTITY);
             return {
-              items: state.items.map((i) =>
-                i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
-              ),
+              items: state.items.map(i => identity(i) === identity(item) ? { ...i, quantity: nextQuantity } : i),
               isOpen: true,
             };
           }
           return { items: [...state.items, { ...item, quantity: 1 }], isOpen: true };
         });
       },
-      removeItem: (id) =>
-        set((state) => ({ items: state.items.filter((i) => i.id !== id) })),
-      updateQuantity: (id, quantity) =>
+      removeItem: (id, type = 'PHYSICAL_GEAR') =>
+        set((state) => ({ items: state.items.filter(i => identity(i) !== identity({ id, type })) })),
+      updateQuantity: (id, quantity, type = 'PHYSICAL_GEAR') => {
+        const normalized = Number.isInteger(quantity) ? Math.max(1, Math.min(quantity, MAX_CLIENT_QUANTITY)) : 1;
         set((state) => ({
-          items: state.items.map((i) => (i.id === id ? { ...i, quantity } : i)),
-        })),
+          items: state.items.map(i => identity(i) === identity({ id, type }) ? { ...i, quantity: normalized } : i),
+        }));
+      },
       clearCart: () => set({ items: [] }),
       getTotal: () => get().items.reduce((total, item) => total + item.price * item.quantity, 0),
     }),
     {
       name: 'nexus-cart-storage',
-      partialize: (state) => ({ items: state.items }), // Only persist items
-    }
-  )
+      partialize: (state) => ({ items: state.items }),
+    },
+  ),
 );
