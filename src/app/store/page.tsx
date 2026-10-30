@@ -62,7 +62,7 @@ export default async function StorefrontPage() {
               <article key={product.id} className="group rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900/80 hover:border-indigo-500/50 transition-all hover:-translate-y-1">
                 <Link href={`/store/${product.slug}`} className="block">
                   <div className="h-64 relative bg-zinc-950 overflow-hidden">
-                    <MediaImage src={image} alt={product.name} fallbackLabel={product.name} className="transition-transform duration-500 group-hover:scale-105" />
+                    <MediaImage src={image} alt={product.name} fallbackLabel={product.name} className="bg-white object-contain p-5 transition-transform duration-500 group-hover:scale-105" />
                     <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-zinc-950 to-transparent pointer-events-none" />
                     <span className="absolute top-4 left-4 px-2.5 py-1 rounded-full bg-zinc-950/85 border border-zinc-700 text-[10px] text-zinc-300 font-black uppercase tracking-wider">
                       {product.category.replaceAll('_', ' ')}
