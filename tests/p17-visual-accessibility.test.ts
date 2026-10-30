@@ -10,7 +10,7 @@ test('P17 global polish provides accessible focus and reduced-motion behavior', 
   const css = read('src/app/globals.css');
   assert.match(css, /:focus-visible/);
   assert.match(css, /prefers-reduced-motion/);
-  assert.match(css, /color-scheme:s*dark/);
+  assert.match(css, /color-scheme:\s*dark/);
 });
 
 test('P17 media wrapper documents why arbitrary remote imagery stays out of next/image', () => {
