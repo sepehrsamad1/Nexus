@@ -34,7 +34,7 @@ Where a current public retailer/catalog rating and review count was available du
 
 ## Images
 
-The schema stores both image references and image-source references. The prototype uses a first-party Nexus SVG catalog-art endpoint for stable presentation, while retaining the manufacturer's product URL as the source reference. This avoids broken images and the old generic "Product Image" placeholder behavior without pretending Nexus owns manufacturer photography.
+The schema stores both image references and image-source references. The catalog now uses real public product photography references for all 15 products, sourced from manufacturer or retailer product pages. The first-party Nexus SVG catalog-art endpoint remains available as a resilient fallback when a remote image cannot load. Nexus does not claim ownership of manufacturer/retailer photography.
 
 ## Verification
 
