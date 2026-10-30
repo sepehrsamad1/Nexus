@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Heart, ShoppingCart, Trash2, ArrowRight } from 'lucide-react';
 import { useWishlist } from '@/store/useWishlist';
 import { useCart } from '@/store/useCart';
+import { MediaImage } from '@/components/MediaImage';
 import { useEffect, useState } from 'react';
 
 export default function WishlistPage() {
@@ -12,7 +13,7 @@ export default function WishlistPage() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  if (!mounted) return null;
+  if (!mounted) return <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10 min-h-screen" aria-busy="true" aria-label="Loading wishlist"><div className="h-10 w-48 rounded-lg bg-zinc-900 animate-pulse" /><div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">{[1,2,3].map(item => <div key={item} className="h-80 rounded-2xl bg-zinc-900 animate-pulse" />)}</div></main>;
 
   return (
     <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10 min-h-screen">
@@ -36,7 +37,7 @@ export default function WishlistPage() {
           {items.map(item => (
             <article key={item.type + ':' + item.id} className="rounded-2xl border border-zinc-800 bg-zinc-900/70 overflow-hidden">
               <Link href={item.href} className="block h-52 bg-zinc-950">
-                <img src={item.image} alt={item.name} className="w-full h-full object-contain p-6" />
+                <MediaImage src={item.image} alt={item.name} fallbackLabel="Image unavailable" className="object-contain p-6" />
               </Link>
               <div className="p-5">
                 <Link href={item.href} className="font-black text-lg text-white hover:text-indigo-300 line-clamp-2">{item.name}</Link>
@@ -47,7 +48,7 @@ export default function WishlistPage() {
                       if (item.type === 'GAME') return;
                       addItem({ id: item.id, name: item.name, price: item.price, image: item.image, type: item.type, category: item.category });
                     }} className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold"><ShoppingCart className="w-4 h-4" /> Cart</button>}
-                    <button aria-label={'Remove ' + item.name + ' from wishlist'} onClick={() => removeItem(item.id, item.type)} className="p-2 rounded-lg border border-zinc-700 text-rose-400 hover:border-rose-500/40"><Trash2 className="w-4 h-4" /></button>
+                    <button aria-label={'Remove ' + item.name + ' from wishlist'} onClick={() => removeItem(item.id, item.type)} className="p-2 rounded-lg border border-zinc-700 text-rose-400 hover:border-rose-500/40 hover:bg-rose-500/10 transition-colors"><Trash2 className="w-4 h-4" /></button>
                   </div>
                 </div>
               </div>
