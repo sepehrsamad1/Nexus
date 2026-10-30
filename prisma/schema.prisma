@@ -172,6 +172,30 @@ model MediaAsset {
   @@index([entityType, entityId, kind, sortOrder])
 }
 
+model ExternalReference {
+  id                 String   @id @default(cuid())
+  entityType         String
+  entityId           String
+  kind               String
+  externalId         String?
+  source             String
+  sourceUrl          String
+  canonicalUrl       String
+  title              String
+  excerpt            String?
+  authorDisplayName  String?
+  publishedAt        DateTime?
+  retrievedAt        DateTime
+  attribution        String
+  metadataJson       String   @default("{}")
+  isDemoEditorial    Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([source, externalId])
+  @@index([entityType, entityId, kind, retrievedAt])
+}
+
 model Product {
   id                      String      @id @default(cuid())
   slug                    String      @unique
