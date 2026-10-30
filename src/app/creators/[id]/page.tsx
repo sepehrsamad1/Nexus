@@ -10,7 +10,7 @@ export default async function CreatorProfilePage({ params }: { params: Promise<{
   const { id } = await params;
   const session = await getSession();
 
-  const creator = await prisma.user.findUnique({
+  const creator = await prisma.user.findFirst({
     where: { role: 'STREAMER', OR: [{ id }, { creatorProfile: { handle: id } }] },
     include: {
       creatorProfile: true,
