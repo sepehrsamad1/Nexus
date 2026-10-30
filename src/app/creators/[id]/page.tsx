@@ -11,7 +11,7 @@ export default async function CreatorProfilePage({ params }: { params: Promise<{
   const session = await getSession();
 
   const creator = await prisma.user.findUnique({
-    where: { id, role: 'STREAMER' },
+    where: { role: 'STREAMER', OR: [{ id }, { creatorProfile: { handle: id } }] },
     include: {
       creatorProfile: true,
       reviews: {
@@ -20,7 +20,7 @@ export default async function CreatorProfilePage({ params }: { params: Promise<{
         take: 12,
       },
       creatorPosts: { orderBy: { createdAt: 'desc' }, take: 8 },
-      _count: { select: { followers: true, reviews: true, creatorPosts: true } },
+      _count: { select: { followers: true, following: true, reviews: true, comments: true, creatorPosts: true } },
     },
   });
 
@@ -48,14 +48,15 @@ export default async function CreatorProfilePage({ params }: { params: Promise<{
                 <Video className="h-5 w-5 text-purple-400" />
                 <span className="text-xs font-black uppercase tracking-widest text-purple-400">Creator</span>
                 {creator.creatorProfile.isDemoEditorial && (
-                  <span className="rounded bg-zinc-800 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-zinc-400">Demo / Editorial</span>
+                  <span className="rounded bg-zinc-800 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-zinc-400">Demo / Editorial — not verified</span>
                 )}
               </div>
               <h1 className="mt-2 text-4xl font-black text-white">{creator.creatorProfile.displayName}</h1>
               <p className="text-sm text-zinc-500">@{creator.creatorProfile.handle}</p>
-              <p className="mt-3 max-w-3xl text-zinc-300">{creator.creatorProfile.bio || creator.creatorProfile.tagline}</p>
+              <p className="mt-3 max-w-3xl text-zinc-300">{creator.creatorProfile.bio || creator.creatorProfile.tagline || 'No creator bio yet.'}</p>
               <div className="mt-5 flex flex-wrap items-center gap-5 text-sm font-bold text-zinc-500">
                 <span className="flex items-center gap-2"><Users className="h-4 w-4" /> {creator._count.followers} followers</span>
+                <span>{creator._count.following} following</span>
                 <span>{creator._count.reviews} reviews</span>
                 <span>{creator._count.creatorPosts} posts</span>
               </div>
