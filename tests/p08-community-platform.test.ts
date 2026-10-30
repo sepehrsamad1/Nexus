@@ -73,11 +73,13 @@ test('P08 community UI has explicit loading and recoverable error states', () =>
   assert.match(error, /temporarily unavailable/);
 });
 
-test('P08 seed contains safe game-level demo discussions and derives discussion counts', () => {
+test('P08 seed contains safe game-level demo discussions and P09 derives discussion counts from comments', () => {
   const seed = read('prisma/seed.ts');
-  assert.match(seed, /separate game-level discussion thread/);
+  const scoring = read('src/lib/scoring.ts');
+  assert.match(seed, /game-level demo discussion/);
   assert.match(seed, /not a real user quote/);
-  assert.match(seed, /const gameDiscussion = await prisma\.comment\.create/);
-  assert.match(seed, /gameId: game\.id/);
-  assert.match(seed, /discussionCount: await prisma\.comment\.count/);
+  assert.match(seed, /const gameDiscussion = await prisma\\.comment\\.create/);
+  assert.match(seed, /gameId: game\\.id/);
+  assert.match(scoring, /discussionCount: await prisma\\.comment\\.count/);
+  assert.match(scoring, /reviewId: null/);
 });
