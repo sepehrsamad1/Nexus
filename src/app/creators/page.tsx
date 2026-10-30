@@ -73,7 +73,7 @@ export default async function CreatorsPage() {
                 </div>
                 <div className="mt-5 flex items-center justify-between gap-3">
                   <CreatorFollowButton creatorId={creator.id} initialFollowing={followingIds.has(creator.id)} />
-                  <Link href={'/creators/' + creator.id} className="text-sm font-bold text-indigo-400 hover:text-indigo-300">
+                  <Link href={'/creators/' + creator.creatorProfile!.handle} className="text-sm font-bold text-indigo-400 hover:text-indigo-300">
                     Profile <ArrowRight className="inline h-4 w-4" />
                   </Link>
                 </div>
