@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { recalculateGameScores } from '../src/lib/scoring';
 
 const prisma = new PrismaClient();
 
@@ -326,13 +327,10 @@ async function main() {
     }
   }
 
-  // Persist deterministic aggregate metadata that matches the seeded review/discussion graph.
+  // Recalculate every aggregate from the actual seeded review graph.
+  // Missing score sources are omitted from the overall-weight denominator rather than treated as zero.
   for (const game of games) {
-    const overallScore = Math.round((game.expertScore * 0.45 + game.streamerScore * 0.30 + game.userScore * 0.25) * 10) / 10;
-    await prisma.game.update({
-      where: { id: game.id },
-      data: { overallScore, reviewCount: 4, discussionCount: await prisma.comment.count({ where: { gameId: game.id, reviewId: null, isDeleted: false } }) },
-    });
+    await recalculateGameScores(game.id);
   }
 
   console.log(`✅ Seeding completed successfully: ${games.length} canonical games.`);
