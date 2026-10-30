@@ -53,9 +53,7 @@ export default async function OrdersPage() {
                       <div className="text-zinc-300 font-medium font-mono">#{order.id.slice(0,8).toUpperCase()}</div>
                     </div>
                   </div>
-                  <div className="px-3 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full text-xs font-bold uppercase tracking-wider w-fit">
-                    {order.status}
-                  </div>
+                  <div className="flex items-center gap-3"><span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full text-xs font-bold uppercase tracking-wider w-fit">{order.status}</span><Link href={`/profile/orders/${order.id}`} className="text-xs font-bold text-indigo-300 hover:text-indigo-200">View details</Link></div>
                 </div>
 
                 <div className="p-6">
