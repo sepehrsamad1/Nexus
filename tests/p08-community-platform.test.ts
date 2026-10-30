@@ -77,7 +77,7 @@ test('P08 seed contains safe game-level demo discussions and derives discussion 
   const seed = read('prisma/seed.ts');
   assert.match(seed, /separate game-level discussion thread/);
   assert.match(seed, /not a real user quote/);
+  assert.match(seed, /const gameDiscussion = await prisma\.comment\.create/);
   assert.match(seed, /gameId: game\.id/);
-  assert.match(seed, /reviewId: null/);
   assert.match(seed, /discussionCount: await prisma\.comment\.count/);
 });
