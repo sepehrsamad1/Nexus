@@ -141,6 +141,12 @@ export default async function GameDetailPage({ params }: { params: Promise<{ slu
     USER: game.reviews.find(review => review.roleAtCreation === 'USER'),
   };
 
+  const scoreRows = [
+    { label: 'Expert', score: game.expertScore, count: game.reviews.filter(review => review.roleAtCreation === 'EXPERT').length, tone: 'emerald' },
+    { label: 'Creator', score: game.streamerScore, count: game.reviews.filter(review => review.roleAtCreation === 'STREAMER').length, tone: 'purple' },
+    { label: 'Player', score: game.userScore, count: game.reviews.filter(review => review.roleAtCreation === 'USER').length, tone: 'sky' },
+  ] as const;
+
   return (
     <main className="min-h-screen pb-20">
       <section className="relative isolate overflow-hidden border-b border-zinc-800">
@@ -189,7 +195,14 @@ export default async function GameDetailPage({ params }: { params: Promise<{ slu
             </div>
 
             <div className="shrink-0 rounded-2xl border border-zinc-700 bg-zinc-950/85 p-5 backdrop-blur-md">
-              <MetascoreBadge score={game.overallScore} label="Nexus Score" size="lg" />
+              {game.reviewCount > 0 ? (
+                <MetascoreBadge score={game.overallScore} label="Nexus Score" size="lg" />
+              ) : (
+                <div className="rounded-xl border border-dashed border-zinc-700 px-5 py-4 text-center">
+                  <div className="text-3xl font-black text-zinc-500">—</div>
+                  <div className="mt-1 text-xs font-bold uppercase tracking-wider text-zinc-500">Not rated</div>
+                </div>
+              )}
               <div className="mt-4 grid grid-cols-2 gap-3 text-center text-xs">
                 <div><div className="text-lg font-black text-white">{game.reviewCount}</div><div className="text-zinc-500">Reviews</div></div>
                 <div><div className="text-lg font-black text-white">{game.discussionCount}</div><div className="text-zinc-500">Discussion</div></div>
@@ -205,21 +218,29 @@ export default async function GameDetailPage({ params }: { params: Promise<{ slu
             <section aria-labelledby="score-breakdown">
               <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
                 <h2 id="score-breakdown" className="text-2xl font-black text-white">Score Breakdown</h2>
-                <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">Nexus aggregate</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">Transparent aggregate</span>
               </div>
+              <p className="mt-3 max-w-3xl text-sm leading-relaxed text-zinc-500">
+                Each source is the average of its submitted reviews. The Overall Score uses 45% Expert, 30% Creator,
+                and 25% Player weight, with missing sources omitted and the remaining weights renormalized.
+              </p>
               <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {[
-                  ['Expert', game.expertScore, 'emerald'],
-                  ['Creator', game.streamerScore, 'purple'],
-                  ['Player', game.userScore, 'sky'],
-                ].map(([label, score, tone]) => (
-                  <div key={label as string} className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+                {scoreRows.map(({ label, score, count, tone }) => (
+                  <div key={label} className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
                     <div className="flex items-center justify-between mb-3">
-                      <span className="font-bold text-white">{label as string}</span>
-                      <span className="font-mono text-xl font-black text-white">{score as number}</span>
+                      <span className="font-bold text-white">{label}</span>
+                      <span className="font-mono text-xl font-black text-white">{count > 0 ? score : '—'}</span>
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
-                      <div className={`h-full rounded-full ${tone === 'emerald' ? 'bg-emerald-400' : tone === 'purple' ? 'bg-purple-400' : 'bg-sky-400'}`} style={{ width: `${scoreBar(score as number)}%` }} />
+                      {count > 0 && (
+                        <div
+                          className={`h-full rounded-full ${tone === 'emerald' ? 'bg-emerald-400' : tone === 'purple' ? 'bg-purple-400' : 'bg-sky-400'}`}
+                          style={{ width: `${scoreBar(score)}%` }}
+                        />
+                      )}
+                    </div>
+                    <div className="mt-3 text-xs text-zinc-500">
+                      {count > 0 ? `${count} review${count === 1 ? '' : 's'}` : 'No reviews yet'}
                     </div>
                   </div>
                 ))}
