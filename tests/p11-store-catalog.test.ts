@@ -21,7 +21,7 @@ test('P11 seed contains exactly the 15 roadmap products', () => {
     'TITAN Evo', 'Wave:3', 'Facecam MK.2', 'WD_BLACK SN850X 2TB',
     'Radeon RX 9070 XT', 'GeForce RTX 5070 Ti', 'DualSense Edge',
   ];
-  assert.equal((seed.match(/slug: '/g) ?? []).length, 15);
+  const gearSection = seed.slice(seed.indexOf('const gearCatalog = ['), seed.indexOf('  const products = await Promise.all'));\n  assert.equal((gearSection.match(/slug: '/g) ?? []).length, 15);
   for (const name of required) assert.ok(seed.includes(name), `Missing roadmap product: ${name}`);
 });
 
