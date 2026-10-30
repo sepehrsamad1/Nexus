@@ -6,6 +6,7 @@ import { ReviewModal } from '@/components/reviews/ReviewModal';
 import { RootCommentForm } from '@/components/discussion/RootCommentForm';
 import { CommentTree } from '@/components/discussion/CommentTree';
 import { ReviewCommerceSidebar } from '@/components/store/ReviewCommerceSidebar';
+import { WishlistButton } from '@/components/store/WishlistButton';
 import { MediaImage } from '@/components/MediaImage';
 import { safeJsonParse } from '@/lib/utils';
 import {
@@ -184,7 +185,10 @@ export default async function GameDetailPage({ params }: { params: Promise<{ slu
                   <span key={genre} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold uppercase tracking-wider text-zinc-200">{genre}</span>
                 ))}
               </div>
-              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white">{game.title}</h1>
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white">{game.title}</h1>
+                <WishlistButton item={{ id: game.id, name: game.title, price: game.digitalPrice, image: game.coverImage, type: "GAME", category: "GAME", href: `/games/${game.slug}` }} />
+              </div>
               <p className="mt-4 max-w-3xl text-base sm:text-lg leading-relaxed text-zinc-300">{game.description}</p>
 
               <div className="mt-6 flex flex-wrap gap-x-5 gap-y-3 text-sm text-zinc-300">
