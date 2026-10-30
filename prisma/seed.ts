@@ -9,6 +9,7 @@ async function main() {
   // Clean existing data
   await prisma.orderItem.deleteMany();
   await prisma.mediaAsset.deleteMany();
+  await prisma.externalReference.deleteMany();
   await prisma.creatorFollow.deleteMany();
   await prisma.creatorPost.deleteMany();
   await prisma.creatorProfile.deleteMany();
@@ -219,6 +220,58 @@ async function main() {
         { entityType: 'GAME', entityId: game.id, kind: 'TRAILER_THUMBNAIL', url: trailerId ? `https://img.youtube.com/vi/${trailerId}/maxresdefault.jpg` : heroUrl, altText: `${game.title} trailer thumbnail`, source: trailerId ? 'YouTube public trailer thumbnail' : 'Steam remote media', sourceUrl, attribution: 'Publicly accessible media reference; verify rights before production use', license: 'Remote platform-hosted media; rights are not transferred to Nexus', sortOrder: 2 },
       ];
     }),
+  });
+
+  // P10 fallback records: external integrations are disabled by default, so the demo remains self-contained.
+  // These records link to public sources but are explicitly Nexus editorial/demo references, not imported user identities or quotes.
+  await prisma.externalReference.createMany({
+    data: [
+      {
+        entityType: 'GAME',
+        entityId: gameBySlug['elden-ring'].id,
+        kind: 'REDDIT_REFERENCE',
+        externalId: 'demo-elden-ring-reddit-2026',
+        source: 'Nexus Editorial Demo',
+        sourceUrl: 'https://www.reddit.com/r/Eldenring/comments/1u3j61e/2026_first_time_player_impressions/',
+        canonicalUrl: 'https://www.reddit.com/r/Eldenring/comments/1u3j61e/2026_first_time_player_impressions/',
+        title: 'Public Reddit community reference — Elden Ring impressions',
+        excerpt: 'Demo reference only. Open the original public post to read the community discussion; Nexus does not copy or impersonate the author.',
+        retrievedAt: new Date(),
+        attribution: 'Public Reddit URL supplied as a Nexus editorial/demo reference. External author identity is not a Nexus account.',
+        metadataJson: JSON.stringify({ provider: 'reddit', mode: 'demo-reference' }),
+        isDemoEditorial: true,
+      },
+      {
+        entityType: 'GAME',
+        entityId: gameBySlug['cyberpunk-2077'].id,
+        kind: 'REDDIT_REFERENCE',
+        externalId: 'demo-cyberpunk-reddit-2026',
+        source: 'Nexus Editorial Demo',
+        sourceUrl: 'https://www.reddit.com/r/cyberpunkgame/comments/1xgd8do/removed/',
+        canonicalUrl: 'https://www.reddit.com/r/cyberpunkgame/comments/1xgd8do/removed/',
+        title: 'Public Reddit community reference — Cyberpunk 2077',
+        excerpt: 'Demo reference only. The source may be removed or unavailable; Nexus does not present the external author as a Nexus user.',
+        retrievedAt: new Date(),
+        attribution: 'Public Reddit URL supplied as a Nexus editorial/demo reference. External author identity is not a Nexus account.',
+        metadataJson: JSON.stringify({ provider: 'reddit', mode: 'demo-reference' }),
+        isDemoEditorial: true,
+      },
+      {
+        entityType: 'GAME',
+        entityId: gameBySlug['demons-souls'].id,
+        kind: 'OFFICIAL_TRAILER',
+        externalId: 'demo-demons-souls-trailer',
+        source: 'Nexus Editorial Demo',
+        sourceUrl: 'https://www.youtube.com/watch?v=JxDhzaZpGOw',
+        canonicalUrl: 'https://www.youtube.com/watch?v=JxDhzaZpGOw',
+        title: 'Public trailer reference — Demon\'s Souls',
+        excerpt: 'Demo reference only. Replace with a verified official publisher/developer trailer when external integration is enabled.',
+        retrievedAt: new Date(),
+        attribution: 'Public YouTube URL supplied as a Nexus editorial/demo reference; Nexus does not re-host the video.',
+        metadataJson: JSON.stringify({ provider: 'youtube', mode: 'demo-reference' }),
+        isDemoEditorial: true,
+      },
+    ],
   });
 
   // 4. Create Reviews & Comments
