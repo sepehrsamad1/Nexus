@@ -19,9 +19,8 @@ export function MediaImage({ src, alt, className, fallbackClassName, fallbackLab
   if (!src || failed) {
     return (
       <div
-        role={alt ? 'img' : undefined}
-        aria-label={alt || undefined}
-        aria-hidden={alt ? undefined : true}
+        role="img"
+        aria-label={alt || fallbackLabel}
         className={cn('flex h-full w-full items-center justify-center bg-zinc-900 text-zinc-500', fallbackClassName)}
       >
         <div className="flex flex-col items-center gap-2 px-4 text-center">
