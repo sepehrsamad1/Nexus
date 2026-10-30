@@ -206,7 +206,13 @@ model Product {
   price                   Float
   stock                   Int         @default(25)
   imagesJson              String      @default("[]")
+  imageSourceJson         String      @default("[]")
   specsJson               String      @default("{}")
+  rating                  Float       @default(0)
+  reviewCount             Int         @default(0)
+  priceSource             String?
+  priceCheckedAt          DateTime?
+  sourceUrl               String?
   relatedGameId           String?
   recommendedByStreamerId String?
   createdAt               DateTime    @default(now())
