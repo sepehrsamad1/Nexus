@@ -10,6 +10,9 @@ export default function CheckoutPage() {
   const { items, getTotal, clearCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [orderNumber, setOrderNumber] = useState('');
+  const [paymentOutcome, setPaymentOutcome] = useState<'SUCCESS' | 'FAILURE'>('SUCCESS');
+  const [error, setError] = useState('');
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
@@ -22,6 +25,7 @@ export default function CheckoutPage() {
   const handleCheckout = async () => {
     if (items.length === 0) return;
     setIsProcessing(true);
+    setError('');
 
     try {
       // 1. Call API route (Mock/Stripe routing)
@@ -30,6 +34,7 @@ export default function CheckoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           items: items.map(({ id, type, quantity }) => ({ id, type, quantity })),
+          payment: { outcome: paymentOutcome },
         }),
       });
       const data = await res.json();
@@ -39,16 +44,13 @@ export default function CheckoutPage() {
       }
 
       if (data.simulated) {
+        setOrderNumber(data.orderNumber || 'NEXUS-DEMO');
         setSuccess(true);
         clearCart();
-
-        setTimeout(() => {
-          router.push('/profile/orders');
-        }, 2000);
       }
     } catch (err) {
       console.error(err);
-      alert("Checkout failed. Check stock levels.");
+      setError(err instanceof Error ? err.message : 'Checkout failed.');
     } finally {
       setIsProcessing(false);
     }
@@ -63,8 +65,8 @@ export default function CheckoutPage() {
           <CheckCircle2 className="w-20 h-20 text-emerald-500 mx-auto mb-6" />
           <h1 className="text-3xl font-black text-white mb-2">Order Complete!</h1>
           <p className="text-zinc-400 mb-8">Your digital keys have been delivered and physical gear is preparing for shipment.</p>
-          <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-sm text-zinc-500 mt-4">Redirecting to your library...</p>
+          <p className="text-lg font-black text-indigo-300 font-mono mb-6">Order {orderNumber}</p>
+          <Link href="/profile/orders" className="inline-flex px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold">View Order History</Link>
         </div>
       </main>
     );
@@ -113,20 +115,16 @@ export default function CheckoutPage() {
 
           {/* Payment Simulation */}
           <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-xl h-fit">
-            <h2 className="text-xl font-bold text-white mb-6">Payment Method</h2>
+            <h2 className="text-xl font-bold text-white mb-2">Payment Method</h2>
+            <p className="text-xs text-amber-300 mb-5">Prototype simulation only — no real payment is processed and no card details are stored.</p>
             
             <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-xl p-4 mb-8 text-sm text-indigo-300">
               <strong>Local Development Mode Active:</strong> Clicking the button below will instantly fulfill the order using a simulated transaction and distribute keys from the database.
             </div>
 
-            <div className="space-y-4 mb-8 opacity-50 pointer-events-none">
-              <div className="h-12 bg-zinc-950 border border-zinc-800 rounded-lg flex items-center px-4 text-zinc-500">Card Number: **** **** **** 4242</div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="h-12 bg-zinc-950 border border-zinc-800 rounded-lg flex items-center px-4 text-zinc-500">MM/YY</div>
-                <div className="h-12 bg-zinc-950 border border-zinc-800 rounded-lg flex items-center px-4 text-zinc-500">CVC</div>
-              </div>
-            </div>
+            <div className="space-y-4 mb-8"><div className="h-12 bg-zinc-950 border border-zinc-800 rounded-lg flex items-center px-4 text-zinc-500">Demo card field — not collected or stored</div><div className="grid grid-cols-2 gap-4"><div className="h-12 bg-zinc-950 border border-zinc-800 rounded-lg px-4 flex items-center text-zinc-500">Demo expiry</div><div className="h-12 bg-zinc-950 border border-zinc-800 rounded-lg px-4 flex items-center text-zinc-500">Demo CVC</div></div><label className="block text-sm text-zinc-400">Simulation result<select value={paymentOutcome} onChange={e => setPaymentOutcome(e.target.value as "SUCCESS" | "FAILURE")} className="mt-2 w-full h-12 bg-zinc-950 border border-zinc-800 rounded-lg px-4 text-zinc-200"><option value="SUCCESS">Successful payment</option><option value="FAILURE">Simulate payment failure</option></select></label></div>
 
+            {error && <div role="alert" className="mb-5 rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-300">{error}</div>}
             <button 
               onClick={handleCheckout}
               disabled={isProcessing}
