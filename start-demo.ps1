@@ -1,8 +1,9 @@
 $ErrorActionPreference = "Stop"
 
-# The university demo intentionally uses the normal local SQLite database from .env.
-# This prevents a temporary QA DATABASE_URL override from leaking into the demo.
-$env:DATABASE_URL = $null
+# The university demo intentionally uses a local SQLite database.
+# Setting the value explicitly makes the launcher work on a fresh laptop even when .env is absent,
+# and prevents a temporary QA DATABASE_URL override from leaking into the demo.
+$env:DATABASE_URL = "file:./dev.db"
 
 Write-Host "============================================================" -ForegroundColor Cyan
 Write-Host " NEXUS UNIVERSITY DEMO LAUNCHER" -ForegroundColor Cyan
